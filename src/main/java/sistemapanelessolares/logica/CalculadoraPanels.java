@@ -1,8 +1,11 @@
-package sistemapanelessolares.app;
+package sistemapanelessolares.logica;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import sistemapanelessolares.dominio.Casa;
+import sistemapanelessolares.dominio.PanelSolar;
+import sistemapanelessolares.dominio.SolarAPIUsuario;
 public class CalculadoraPanels {
 
     private Casa casa;
@@ -25,16 +28,22 @@ public class CalculadoraPanels {
         this.costoAdicionalSistema = costoAdicionalSistema;
     }
 
-    public double getHorasSolEstimadas() {
+   public double getHorasSolEstimadas() {
+            // Si la casa tiene coordenadas configuradas (diferentes a 0)
+        if (casa.getLatitud() != 0.0 || casa.getLongitud() != 0.0) {
+            return SolarAPIUsuario.obtenerHorasSolPico(casa.getLatitud(), casa.getLongitud());
+        }
+
+        // Si no hay coordenadas, usamos el mapa estático de ciudades
         String ciudadClave = casa.getCiudad().trim().toLowerCase();
         for (String key : MAPA_HORAS_SOL.keySet()) {
             if (key.toLowerCase().equals(ciudadClave)) {
                 return MAPA_HORAS_SOL.get(key);
             }
         }
-        return 5.0;
-    }
+        return 5.0;// Fallback total
 
+        }
     public int calcularNumeroPaneles() {
         double consumoDiarioKWh = casa.getConsumoDiarioKWh();
         double horasSol = getHorasSolEstimadas();

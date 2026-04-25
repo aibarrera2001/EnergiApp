@@ -1,4 +1,4 @@
-package sistemapanelessolares.app;
+package sistemapanelessolares.dominio;
 
 public class PanelSolar {
 
