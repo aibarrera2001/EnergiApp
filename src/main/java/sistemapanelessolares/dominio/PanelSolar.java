@@ -6,13 +6,13 @@ public class PanelSolar {
     private double potenciaW;
     private double eficiencia;
     private double costoPorPanel;
+    private double costoInstalacion;
 
-    public PanelSolar(String modelo, double potenciaW, double eficiencia, double costoPorPanel) {
+    public PanelSolar(String modelo, double potenciaW, double eficiencia, double costoPorPanel, double costoInstalacion) {
         this.modelo = modelo;
         this.potenciaW = potenciaW;
         this.eficiencia = eficiencia;
-        this.costoPorPanel = costoPorPanel;
-    }
+        this.costoPorPanel = costoPorPanel;        this.costoInstalacion = costoInstalacion;    }
 
     public double produccionDiariaKWh(double horasSolEfectivas) {
         double kilowatts = 1000.0;
@@ -26,6 +26,10 @@ public class PanelSolar {
 
     public double getCostoPorPanel() {
         return costoPorPanel;
+    }
+
+    public double getCostoInstalacion() {
+        return costoInstalacion;
     }
 
     @Override

@@ -16,29 +16,70 @@ public class Registro {
 
     public Usuario registrarNuevoUsuario() {
         System.out.println("--- REGISTRO DE USUARIO ---");
-        System.out.print("Nombre: ");
-        String nombre = scanner.nextLine();
         
-        System.out.print("Apellido: ");
-        String apellido = scanner.nextLine();
+        String nombre;
+        do {
+            System.out.print("Nombre: ");
+            nombre = scanner.nextLine();
+            try {
+                validadorUsuario.validarNombre(nombre);
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Error: " + e.getMessage());
+            }
+        } while (true);
         
-        System.out.print("Correo electrónico: ");
-        String correo = scanner.nextLine();
+        String apellido;
+        do {
+            System.out.print("Apellido: ");
+            apellido = scanner.nextLine();
+            try {
+                validadorUsuario.validarApellido(apellido);
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Error: " + e.getMessage());
+            }
+        } while (true);
         
-        System.out.print("Contraseña (min. 6 caracteres): ");
-        String pass = scanner.nextLine();
+        String telefono;
+        do {
+            System.out.print("Teléfono: ");
+            telefono = scanner.nextLine();
+            try {
+                validadorUsuario.validarTelefono(telefono);
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Error: " + e.getMessage());
+            }
+        } while (true);
+        
+        String correo;
+        do {
+            System.out.print("Correo electrónico: ");
+            correo = scanner.nextLine();
+            try {
+                validadorUsuario.validarCorreo(correo);
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Error: " + e.getMessage());
+            }
+        } while (true);
+        
+        String pass;
+        do {
+            System.out.print("Contraseña (min. 6 caracteres): ");
+            pass = scanner.nextLine();
+            try {
+                validadorUsuario.validarContrasena(pass);
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("❌ Error: " + e.getMessage());
+            }
+        } while (true);
 
-        Usuario nuevoUsuario = new Usuario(1, nombre, apellido, correo, pass);
+        Usuario nuevoUsuario = new Usuario(1, nombre, apellido, telefono, correo, pass);
 
-        // Validar datos con la clase que creamos antes
-        try {
-            validadorUsuario.validarRegistro(nuevoUsuario);
-            System.out.println("✔ Usuario validado correctamente.");
-        } catch (IllegalArgumentException e) {
-            System.out.println("❌ Error en el registro: " + e.getMessage());
-            return null;
-        }
-
+        System.out.println("✔ Usuario registrado correctamente.");
         return nuevoUsuario;
     }
 
@@ -64,15 +105,19 @@ public class Registro {
 
     public PanelSolar seleccionarPanel() {
         System.out.println("\n--- SELECCIÓN DE PANEL SOLAR ---");
-        System.out.println("1. Trina Solar 450W (Eficiencia 21%) - $180.0");
-        System.out.println("2. Jinko Solar 400W (Eficiencia 20%) - $160.0");
+        System.out.println("1. Triada Solar 450W (Eficiencia 21%) - $1,800,000");
+        System.out.println("2. Heinsen Solar 400W (Eficiencia 20%) - $1,600,000");
         System.out.print("Seleccione una opción (1 o 2): ");
         
         int opcion = Integer.parseInt(scanner.nextLine());
+        
+        System.out.print("Ingrese costo adicional de instalación (inversor, mano de obra, etc): ");
+        double costoInstalacion = Double.parseDouble(scanner.nextLine());
+
         if (opcion == 1) {
-            return new PanelSolar("Trina 450W", 450, 0.21, 180.0);
+            return new PanelSolar("Triada 450W", 450, 0.21, 1800000.0, costoInstalacion);
         } else {
-            return new PanelSolar("Jinko 400W", 400, 0.20, 160.0);
+            return new PanelSolar("Heinsen 400W", 400, 0.20, 1600000.0, costoInstalacion);
         }
     }
 }

@@ -8,4 +8,3 @@ public static void main(String[] args) {
         app.iniciarApp();
     }
 }
-
