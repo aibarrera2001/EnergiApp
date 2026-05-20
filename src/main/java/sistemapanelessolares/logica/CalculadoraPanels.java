@@ -56,6 +56,15 @@ public class CalculadoraPanels {
         return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
     }
 
+    public static int calcularPanelesParaConsumoMensual(PanelSolar panel, double consumoMensualKWh, double horasSolEfectivas) {
+        double consumoDiarioKWh = consumoMensualKWh / 30.0;
+        double produccionPorPanel = panel.produccionDiariaKWh(horasSolEfectivas);
+        if (produccionPorPanel <= 0) {
+            return 0;
+        }
+        return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
+    }
+
     public double calcularCostoTotal() {
         int numPaneles = calcularNumeroPaneles();
         double costoPaneles = numPaneles * panel.getCostoPorPanel();

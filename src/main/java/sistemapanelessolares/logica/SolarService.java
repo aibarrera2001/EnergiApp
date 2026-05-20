@@ -2,7 +2,7 @@ package sistemapanelessolares.logica;
 
 import sistemapanelessolares.dominio.Casa;
 import sistemapanelessolares.dominio.Usuario;
-import sistemapanelessolares.dominio.PanelSolar;
+
 
 public class SolarService {
 public String generarResumenSolar(Usuario usuario, int indiceCasa, double costoAdicional) {

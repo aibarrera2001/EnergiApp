@@ -25,7 +25,7 @@ public class Registro {
                 validadorUsuario.validarNombre(nombre);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println("❌ Error: " + e.getMessage());
+                System.out.println(" Error: " + e.getMessage());
             }
         } while (true);
         
@@ -37,7 +37,7 @@ public class Registro {
                 validadorUsuario.validarApellido(apellido);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println("❌ Error: " + e.getMessage());
+                System.out.println(" Error: " + e.getMessage());
             }
         } while (true);
         
@@ -49,7 +49,7 @@ public class Registro {
                 validadorUsuario.validarTelefono(telefono);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println("❌ Error: " + e.getMessage());
+                System.out.println(" Error: " + e.getMessage());
             }
         } while (true);
         
@@ -61,7 +61,7 @@ public class Registro {
                 validadorUsuario.validarCorreo(correo);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println("❌ Error: " + e.getMessage());
+                System.out.println(" Error: " + e.getMessage());
             }
         } while (true);
         
@@ -73,7 +73,7 @@ public class Registro {
                 validadorUsuario.validarContrasena(pass);
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println("❌ Error: " + e.getMessage());
+                System.out.println(" Error: " + e.getMessage());
             }
         } while (true);
 
@@ -105,8 +105,8 @@ public class Registro {
 
     public PanelSolar seleccionarPanel() {
         System.out.println("\n--- SELECCIÓN DE PANEL SOLAR ---");
-        System.out.println("1. Triada Solar 450W (Eficiencia 21%) - $1,800,000");
-        System.out.println("2. Heinsen Solar 400W (Eficiencia 20%) - $1,600,000");
+        System.out.println("1. Triada Solar 450W (Eficiencia 22%) - $2,100,000");
+        System.out.println("2. Heinsen Solar 400W (Eficiencia 21%) - $1,900,000");
         System.out.print("Seleccione una opción (1 o 2): ");
         
         int opcion = Integer.parseInt(scanner.nextLine());
@@ -115,9 +115,9 @@ public class Registro {
         double costoInstalacion = Double.parseDouble(scanner.nextLine());
 
         if (opcion == 1) {
-            return new PanelSolar("Triada 450W", 450, 0.21, 1800000.0, costoInstalacion);
+            return new PanelSolar("Triada 450W", 450, 0.22, 2100000.0, costoInstalacion);
         } else {
-            return new PanelSolar("Heinsen 400W", 400, 0.20, 1600000.0, costoInstalacion);
+            return new PanelSolar("Heinsen 400W", 400, 0.21, 1900000.0, costoInstalacion);
         }
     }
 }

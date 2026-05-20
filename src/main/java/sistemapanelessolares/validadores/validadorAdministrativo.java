@@ -10,6 +10,12 @@ public class validadorAdministrativo {
         }
     }
 
+    public static void validarDepartamento(String departamento) throws IllegalArgumentException {
+        if (departamento == null || departamento.trim().isEmpty()) {
+            throw new IllegalArgumentException("El departamento no puede estar vacío.");
+        }
+    }
+
     public static void validarCodigo(String codigo) throws IllegalArgumentException {
         if (codigo == null || codigo.trim().isEmpty()) {
             throw new IllegalArgumentException("El código no puede estar vacío.");

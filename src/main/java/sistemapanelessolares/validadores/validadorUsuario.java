@@ -1,5 +1,5 @@
 package sistemapanelessolares.validadores;
-import sistemapanelessolares.dominio.Usuario;
+
 import java.util.regex.Pattern;
 public class validadorUsuario {
 
