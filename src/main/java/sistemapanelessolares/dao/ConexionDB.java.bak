@@ -11,7 +11,6 @@ public class ConexionDB {
 
    public static Connection conectar() {
     try {
-        Class.forName("org.postgresql.Driver");
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
         System.out.println("Conexion exitosa a Supabase");
         return conn;

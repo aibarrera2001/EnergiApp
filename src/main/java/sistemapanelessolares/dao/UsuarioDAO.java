@@ -1,105 +1,120 @@
 package sistemapanelessolares.dao;
 
 import sistemapanelessolares.dominio.Usuario;
-import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO que persiste usuarios en usuarios.txt
- * Formato de cada línea: id,nombre,apellido,correo,contrasena
- */
 public class UsuarioDAO {
 
-    private static final String ARCHIVO = "usuarios.txt";
-
     public void guardar(Usuario usuario) {
-        List<Usuario> todos = listarTodos();
-        // Asignar ID: el mayor existente + 1
-        int nuevoId = todos.stream().mapToInt(Usuario::getIdUsuario).max().orElse(0) + 1;
-        usuario.setIdUsuario(nuevoId);
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ARCHIVO, true))) {
-            bw.write(serializar(usuario));
-            bw.newLine();
-        } catch (IOException e) {
-            System.err.println("Error al guardar usuario: " + e.getMessage());
-        }
+    String sql = "INSERT INTO usuarios (nombre, apellido, telefono, correo, contrasena) "
+               + "VALUES (?, ?, ?, ?, ?) RETURNING id";
+    Connection conn = ConexionDB.conectar(); // ← separar la conexión
+    if (conn == null) {                      // ← verificar null
+        System.err.println("ERROR: No hay conexion a Supabase");
+        return;
     }
-
-    public Usuario buscarPorCorreo(String correo) {
-        for (Usuario u : listarTodos()) {
-            if (u.getCorreo().equalsIgnoreCase(correo)) return u;
-        }
-        return null;
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, usuario.getNombre());
+        ps.setString(2, usuario.getApellido());
+        ps.setString(3, usuario.getTelefono());
+        ps.setString(4, usuario.getCorreo());
+        ps.setString(5, usuario.getContrasena());
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) usuario.setIdUsuario(rs.getInt("id"));
+        System.out.println("Guardado con ID: " + usuario.getIdUsuario());
+    } catch (Exception e) {
+        System.err.println("Error al guardar: " + e.getMessage());
+        e.printStackTrace();
     }
+}
 
+public Usuario buscarPorCorreo(String correo) {
+    String sql = "SELECT * FROM usuarios WHERE correo = ?";
+    Connection conn = ConexionDB.conectar(); // ← separar
+    if (conn == null) return null;           // ← verificar null
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, correo);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return mapear(rs);
+    } catch (Exception e) {
+        System.err.println("Error buscarPorCorreo: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return null;
+}
     public Usuario buscarPorId(int id) {
-        for (Usuario u : listarTodos()) {
-            if (u.getIdUsuario() == id) return u;
+        String sql = "SELECT * FROM usuarios WHERE id = ?";
+        try (Connection conn = ConexionDB.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapear(rs);
+
+        } catch (Exception e) {
+            System.err.println("Error al buscar por id: " + e.getMessage());
         }
         return null;
     }
 
     public List<Usuario> listarTodos() {
         List<Usuario> lista = new ArrayList<>();
-        File archivo = new File(ARCHIVO);
-        if (!archivo.exists()) return lista;
+        String sql = "SELECT * FROM usuarios";
+        try (Connection conn = ConexionDB.conectar();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
 
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                if (!linea.isBlank()) lista.add(deserializar(linea));
-            }
-        } catch (IOException e) {
-            System.err.println("Error al leer usuarios: " + e.getMessage());
+            while (rs.next()) lista.add(mapear(rs));
+
+        } catch (Exception e) {
+            System.err.println("Error al listar usuarios: " + e.getMessage());
         }
         return lista;
     }
 
-    public boolean actualizar(Usuario usuarioActualizado) {
-        List<Usuario> todos = listarTodos();
-        boolean encontrado = false;
-        for (int i = 0; i < todos.size(); i++) {
-            if (todos.get(i).getIdUsuario() == usuarioActualizado.getIdUsuario()) {
-                todos.set(i, usuarioActualizado);
-                encontrado = true;
-                break;
-            }
+    public boolean actualizar(Usuario u) {
+        String sql = "UPDATE usuarios SET nombre=?, apellido=?, telefono=?, correo=?, contrasena=? WHERE id=?";
+        try (Connection conn = ConexionDB.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, u.getNombre());
+            ps.setString(2, u.getApellido());
+            ps.setString(3, u.getTelefono());
+            ps.setString(4, u.getCorreo());
+            ps.setString(5, u.getContrasena());
+            ps.setInt(6, u.getIdUsuario());
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            System.err.println("Error al actualizar usuario: " + e.getMessage());
+            return false;
         }
-        if (encontrado) reescribirArchivo(todos, ARCHIVO);
-        return encontrado;
     }
 
     public boolean eliminar(int id) {
-        List<Usuario> todos = listarTodos();
-        boolean eliminado = todos.removeIf(u -> u.getIdUsuario() == id);
-        if (eliminado) reescribirArchivo(todos, ARCHIVO);
-        return eliminado;
-    }
+        String sql = "DELETE FROM usuarios WHERE id = ?";
+        try (Connection conn = ConexionDB.conectar();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-    // id,nombre,apellido,correo,contrasena
-    private String serializar(Usuario u) {
-        return u.getIdUsuario() + "," + u.getNombre() + "," + u.getApellido() + ","
-             + u.getCorreo() + "," + u.getContrasena();
-    }
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
 
-    private Usuario deserializar(String linea) {
-        String[] partes = linea.split(",");
-        return new Usuario(
-            Integer.parseInt(partes[0]),
-            partes[1], partes[2], partes[3], partes[4]
-        );
-    }
-
-    static void reescribirArchivo(List<?> lista, String ruta) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(ruta, false))) {
-            for (Object obj : lista) {
-                bw.write(obj.toString());
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println("Error al reescribir archivo: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al eliminar usuario: " + e.getMessage());
+            return false;
         }
+    }
+
+    private Usuario mapear(ResultSet rs) throws SQLException {
+        return new Usuario(
+            rs.getInt("id"),
+            rs.getString("nombre"),
+            rs.getString("apellido"),
+            rs.getString("telefono"),
+            rs.getString("correo"),
+            rs.getString("contrasena")
+        );
     }
 }

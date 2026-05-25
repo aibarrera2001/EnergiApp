@@ -1,4 +1,5 @@
 package sistemapanelessolares.view;
+import sistemapanelessolares.dao.UsuarioDAO;
 import java.util.Scanner;
 import sistemapanelessolares.dominio.Casa;
 import sistemapanelessolares.dominio.PanelSolar;
@@ -77,10 +78,14 @@ public class Registro {
             }
         } while (true);
 
-        Usuario nuevoUsuario = new Usuario(1, nombre, apellido, telefono, correo, pass);
+       Usuario nuevoUsuario = new Usuario(0, nombre, apellido, telefono, correo, pass);
 
-        System.out.println("✔ Usuario registrado correctamente.");
-        return nuevoUsuario;
+     // Guardar en Supabase
+     UsuarioDAO dao = new UsuarioDAO();
+     dao.guardar(nuevoUsuario);
+
+     System.out.println("✔ Usuario registrado correctamente.");
+     return nuevoUsuario;
     }
 
     public Casa registrarCasa() {
