@@ -1,10 +1,9 @@
 package sistemapanelessolares.dominio;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Usuario extends Persona {
-
-
 
     private String correo;
     private String contrasena;
@@ -13,6 +12,14 @@ public class Usuario extends Persona {
 
     public Usuario() {}
 
+    // Constructor de 5 parámetros (usado por UsuarioDAO)
+    public Usuario(int id, String nombre, String apellido, String correo, String contrasena) {
+        super(id, nombre, apellido, null);
+        this.correo = correo;
+        this.contrasena = contrasena;
+    }
+
+    // Constructor de 6 parámetros (completo)
     public Usuario(int id, String nombre, String apellido, String telefono, String correo, String contrasena) {
         super(id, nombre, apellido, telefono);
         this.correo = correo;
@@ -23,14 +30,25 @@ public class Usuario extends Persona {
         this.casas.add(casa);
     }
 
+    // ✅ Métodos faltantes que usa UsuarioDAO
+    public int getIdUsuario() {
+        return getId();
+    }
+
+    public void setIdUsuario(int id) {
+        setId(id);
+    }
+
     // Getters y Setters
-  
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
+
     public String getContrasena() { return contrasena; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+
     public List<Casa> getCasas() { return casas; }
     public void setCasas(List<Casa> casas) { this.casas = casas; }
+
     public PanelSolar getPanelSeleccionado() { return panelSeleccionado; }
     public void setPanelSeleccionado(PanelSolar panelSeleccionado) { this.panelSeleccionado = panelSeleccionado; }
 
@@ -45,4 +63,3 @@ public class Usuario extends Persona {
                 '}';
     }
 }
-

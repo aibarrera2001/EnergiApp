@@ -1,11 +1,20 @@
 package sistemapanelessolares.validadores;
+
 import sistemapanelessolares.dominio.Usuario;
 import java.util.regex.Pattern;
+
 public class validadorUsuario {
 
-
-    // Expresión regular básica para validar correos electrónicos
     private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@(.+)$";
+
+    // ✅ Método faltante que usa UsuarioService
+    public static void validarRegistro(Usuario usuario) throws IllegalArgumentException {
+        validarNombre(usuario.getNombre());
+        validarApellido(usuario.getApellido());
+        validarTelefono(usuario.getTelefono());
+        validarCorreo(usuario.getCorreo());
+        validarContrasena(usuario.getContrasena());
+    }
 
     public static void validarNombre(String nombre) throws IllegalArgumentException {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -39,5 +48,4 @@ public class validadorUsuario {
             throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres.");
         }
     }
-
-    }
+}

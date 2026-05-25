@@ -1,13 +1,29 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sistemapanelessolares.dao;
 
-/**
- *
- * @author Andrés
- */
+import java.sql.Connection;
+import java.sql.DriverManager;
+
 public class ConexionDB {
-    
+
+    private static final String URL  = "jdbc:postgresql://aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=require";
+   private static final String USER = "energiapp";
+    private static final String PASS = "EnergiApp#2026_DB";
+
+    public static Connection conectar() {
+        try {
+            Connection conn = DriverManager.getConnection(URL, USER, PASS);
+            System.out.println("Conexion exitosa a Supabase");
+            return conn;
+        } catch (Exception e) {
+            System.out.println("Error de conexion: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        Connection conn = conectar();
+        if (conn != null) {
+            System.out.println("Base de datos lista.");
+        }
+    }
 }

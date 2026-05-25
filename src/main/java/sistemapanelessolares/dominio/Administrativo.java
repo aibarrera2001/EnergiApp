@@ -16,6 +16,9 @@ public class Administrativo extends Persona {
     // Getters y Setters
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
+    public String getDepartamento() { return departamento; }
+    public void setDepartamento(String departamento) { this.departamento = departamento; }
+
     public String getCodigo() {
         return rol + getId();
     }
