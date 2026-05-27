@@ -8,51 +8,50 @@ import java.util.List;
 public class UsuarioDAO {
 
     public void guardar(Usuario usuario) {
-    String sql = "INSERT INTO usuarios (nombre, apellido, telefono, correo, contrasena) "
-               + "VALUES (?, ?, ?, ?, ?) RETURNING id";
-    Connection conn = ConexionDB.conectar(); // ← separar la conexión
-    if (conn == null) {                      // ← verificar null
-        System.err.println("ERROR: No hay conexion a Supabase");
-        return;
+        String sql = "INSERT INTO usuarios (nombre, apellido, telefono, correo, contrasena) "
+                   + "VALUES (?, ?, ?, ?, ?) RETURNING id_usuario";
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) {
+            System.err.println("ERROR: No hay conexion a Supabase");
+            return;
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, usuario.getNombre());
+            ps.setString(2, usuario.getApellido());
+            ps.setString(3, usuario.getTelefono());
+            ps.setString(4, usuario.getCorreo());
+            ps.setString(5, usuario.getContrasena());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) usuario.setIdUsuario(rs.getInt("id_usuario"));
+            System.out.println("Guardado con ID: " + usuario.getIdUsuario());
+        } catch (Exception e) {
+            System.err.println("Error al guardar: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, usuario.getNombre());
-        ps.setString(2, usuario.getApellido());
-        ps.setString(3, usuario.getTelefono());
-        ps.setString(4, usuario.getCorreo());
-        ps.setString(5, usuario.getContrasena());
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) usuario.setIdUsuario(rs.getInt("id"));
-        System.out.println("Guardado con ID: " + usuario.getIdUsuario());
-    } catch (Exception e) {
-        System.err.println("Error al guardar: " + e.getMessage());
-        e.printStackTrace();
-    }
-}
 
-public Usuario buscarPorCorreo(String correo) {
-    String sql = "SELECT * FROM usuarios WHERE correo = ?";
-    Connection conn = ConexionDB.conectar(); // ← separar
-    if (conn == null) return null;           // ← verificar null
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, correo);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) return mapear(rs);
-    } catch (Exception e) {
-        System.err.println("Error buscarPorCorreo: " + e.getMessage());
-        e.printStackTrace();
+    public Usuario buscarPorCorreo(String correo) {
+        String sql = "SELECT * FROM usuarios WHERE correo = ?";
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapear(rs);
+        } catch (Exception e) {
+            System.err.println("Error buscarPorCorreo: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
-    return null;
-}
+
     public Usuario buscarPorId(int id) {
-        String sql = "SELECT * FROM usuarios WHERE id = ?";
+        String sql = "SELECT * FROM usuarios WHERE id_usuario = ?";
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapear(rs);
-
         } catch (Exception e) {
             System.err.println("Error al buscar por id: " + e.getMessage());
         }
@@ -65,9 +64,7 @@ public Usuario buscarPorCorreo(String correo) {
         try (Connection conn = ConexionDB.conectar();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-
             while (rs.next()) lista.add(mapear(rs));
-
         } catch (Exception e) {
             System.err.println("Error al listar usuarios: " + e.getMessage());
         }
@@ -75,10 +72,9 @@ public Usuario buscarPorCorreo(String correo) {
     }
 
     public boolean actualizar(Usuario u) {
-        String sql = "UPDATE usuarios SET nombre=?, apellido=?, telefono=?, correo=?, contrasena=? WHERE id=?";
+        String sql = "UPDATE usuarios SET nombre=?, apellido=?, telefono=?, correo=?, contrasena=? WHERE id_usuario=?";
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, u.getNombre());
             ps.setString(2, u.getApellido());
             ps.setString(3, u.getTelefono());
@@ -86,7 +82,6 @@ public Usuario buscarPorCorreo(String correo) {
             ps.setString(5, u.getContrasena());
             ps.setInt(6, u.getIdUsuario());
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             System.err.println("Error al actualizar usuario: " + e.getMessage());
             return false;
@@ -94,13 +89,11 @@ public Usuario buscarPorCorreo(String correo) {
     }
 
     public boolean eliminar(int id) {
-        String sql = "DELETE FROM usuarios WHERE id = ?";
+        String sql = "DELETE FROM usuarios WHERE id_usuario = ?";
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             System.err.println("Error al eliminar usuario: " + e.getMessage());
             return false;
@@ -109,7 +102,7 @@ public Usuario buscarPorCorreo(String correo) {
 
     private Usuario mapear(ResultSet rs) throws SQLException {
         return new Usuario(
-            rs.getInt("id"),
+            rs.getInt("id_usuario"),
             rs.getString("nombre"),
             rs.getString("apellido"),
             rs.getString("telefono"),
