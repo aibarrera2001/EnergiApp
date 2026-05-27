@@ -22,7 +22,7 @@ public class CasaDAO {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, casa.getDireccion());
             ps.setString(2, casa.getCiudad());
-            ps.setDouble(3, casa.getConsumoMensual());
+            ps.setDouble(3, casa.getConsumoMensualKWh());
             ps.setDouble(4, casa.getLatitud());
             ps.setDouble(5, casa.getLongitud());
             ps.setInt(6, idUsuario);

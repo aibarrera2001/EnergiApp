@@ -13,7 +13,6 @@ public class UsuarioService {
     }
 
    public Usuario registrar(Usuario usuario) {
-    validadorUsuario.validarRegistro(usuario);
     if (usuarioDAO.buscarPorCorreo(usuario.getCorreo()) != null) {
         throw new IllegalArgumentException("Ya existe un usuario con el correo: " + usuario.getCorreo());
     }
@@ -28,7 +27,7 @@ public class UsuarioService {
 
     public Usuario autenticar(String correo, String contrasena) {
         Usuario usuario = usuarioDAO.buscarPorCorreo(correo);
-        if (usuario != null && usuario.getContrasena().equals(contrasena)) {
+        if (usuario != null && usuario.getContraseña().equals(contrasena)) {
             return usuario;
         }
         return null;
@@ -39,7 +38,6 @@ public class UsuarioService {
     }
 
     public boolean actualizar(Usuario usuario) {
-        validadorUsuario.validarRegistro(usuario);
         return usuarioDAO.actualizar(usuario);
     }
    

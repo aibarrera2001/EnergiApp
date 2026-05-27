@@ -20,7 +20,7 @@ public class UsuarioDAO {
             ps.setString(2, usuario.getApellido());
             ps.setString(3, usuario.getTelefono());
             ps.setString(4, usuario.getCorreo());
-            ps.setString(5, usuario.getContrasena());
+            ps.setString(5, usuario.getContraseña());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) usuario.setIdUsuario(rs.getInt("id_usuario"));
             System.out.println("Guardado con ID: " + usuario.getIdUsuario());
@@ -79,7 +79,7 @@ public class UsuarioDAO {
             ps.setString(2, u.getApellido());
             ps.setString(3, u.getTelefono());
             ps.setString(4, u.getCorreo());
-            ps.setString(5, u.getContrasena());
+            ps.setString(5, u.getContraseña());
             ps.setInt(6, u.getIdUsuario());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -101,13 +101,9 @@ public class UsuarioDAO {
     }
 
     private Usuario mapear(ResultSet rs) throws SQLException {
-        return new Usuario(
-            rs.getInt("id_usuario"),
-            rs.getString("nombre"),
-            rs.getString("apellido"),
-            rs.getString("telefono"),
-            rs.getString("correo"),
-            rs.getString("contrasena")
+        return new Usuario(rs.getInt("id_usuario"), rs.getString("nombre"),
+    rs.getString("apellido"), rs.getString("telefono"),
+    rs.getString("correo"), rs.getString("contrasena")
         );
     }
 }
