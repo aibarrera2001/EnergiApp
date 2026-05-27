@@ -15,7 +15,7 @@ public class Casa {
         this.latitud = latitud;
         this.longitud = longitud;
     }
-
+    
     public String getDireccion() {
         return direccion;
     }
@@ -36,7 +36,9 @@ public class Casa {
         int diasMes = 30;
         return consumoMensualKWh / diasMes;
     }
-
+    public double getConsumoMensualKWh() {
+        return consumoMensualKWh;
+    }
     public void setConsumoMensualKWh(double consumoMensualKWh) {
         this.consumoMensualKWh = consumoMensualKWh;
     }

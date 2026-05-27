@@ -4,58 +4,58 @@ import sistemapanelessolares.logica.GestorPaneles;
 
 public class Administrativo extends Persona {
 
-  private String rol;
-    private String departamento;
+    private String rol;
+    private String correo;
+    private String contrasena; // Se maneja como contrasena en código Java para evitar problemas de codificación
     private GestorPaneles gestorPaneles;
- 
-    public Administrativo() {
+
+    /**
+     * CONSTRUCTOR 1 (Sin ID): Utilizado para registrar un nuevo administrador.
+     * El ID se inicializa por defecto en 0.
+     */
+    public Administrativo(String nombre, String apellido, String telefono, String rol, String correo, String contrasena) {
+        super(0, nombre, apellido, telefono); // Mantenemos el paso de teléfono a la clase Persona
+        this.rol = rol;
+        this.correo = correo;
+        this.contrasena = contrasena;
         this.gestorPaneles = new GestorPaneles();
     }
- 
-    public Administrativo(int id, String nombre, String apellido, String telefono,
-                          String rol, String departamento) {
+
+    /**
+     * CONSTRUCTOR 2 (Con ID): Utilizado al recuperar los administradores desde la base de datos.
+     */
+    public Administrativo(int id, String nombre, String apellido, String telefono, String rol, String correo, String contrasena) {
         super(id, nombre, apellido, telefono);
         this.rol = rol;
-        this.departamento = departamento;
+        this.correo = correo;
+        this.contrasena = contrasena;
         this.gestorPaneles = new GestorPaneles();
-    }
- 
+    } 
+
     // ----------------------------------------------------------------
-    //  Gestión de paneles — punto de entrada desde la app
+    //  Getters y Setters
     // ----------------------------------------------------------------
- 
-    /**
-     * Abre el menú interactivo de administración de paneles.
-     * Llamar desde Ingreso.java cuando el usuario autenticado sea Administrativo.
-     */
-    public void abrirMenuGestion() {
-        MenuAdministrador menu = new MenuAdministrador(this, gestorPaneles);
-        menu.iniciar();
-    }
- 
-    /**
-     * Expone el gestor para que otros servicios (e.g. SolarService)
-     * puedan leer el catálogo actualizado.
-     */
+
     public GestorPaneles getGestorPaneles() {
         return gestorPaneles;
     }
- 
-    // ----------------------------------------------------------------
-    //  Getters y Setters originales
-    // ----------------------------------------------------------------
- 
+
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
- 
-    public String getDepartamento() { return departamento; }
-    public void setDepartamento(String departamento) { this.departamento = departamento; }
- 
-    /** Código único del administrativo: rol + id heredado de Persona. */
+
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
+
+    public String getContrasena() { return contrasena; }
+    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
+
     public String getCodigo() {
         return rol + getId();
     }
- 
+
+    // ----------------------------------------------------------------
+    //  Visualización de datos
+    // ----------------------------------------------------------------
     @Override
     public String toString() {
         return "Administrativo{" +
@@ -64,7 +64,7 @@ public class Administrativo extends Persona {
                 ", apellido='" + getApellido() + '\'' +
                 ", telefono='" + getTelefono() + '\'' +
                 ", rol='" + rol + '\'' +
-                ", departamento='" + departamento + '\'' +
+                ", correo='" + correo + '\'' +
                 '}';
     }
 }

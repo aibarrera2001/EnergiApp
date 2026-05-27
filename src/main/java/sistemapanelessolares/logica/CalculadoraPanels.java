@@ -1,26 +1,14 @@
 package sistemapanelessolares.logica;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import sistemapanelessolares.dominio.Casa;
 import sistemapanelessolares.dominio.PanelSolar;
 import sistemapanelessolares.dominio.SolarAPIUsuario;
+
 public class CalculadoraPanels {
 
     private Casa casa;
     private PanelSolar panel;
     private double costoAdicionalSistema;
-
-    private static final Map<String, Double> MAPA_HORAS_SOL = new HashMap<>();
-
-    static {
-        MAPA_HORAS_SOL.put("Valledupar", 5.8);
-        MAPA_HORAS_SOL.put("Aguachica", 5.6);
-        MAPA_HORAS_SOL.put("Bogota", 3.6);
-        MAPA_HORAS_SOL.put("Cartagena", 6.9);
-        MAPA_HORAS_SOL.put("Barranquilla", 7.0);
-    }
 
     public CalculadoraPanels(Casa casa, PanelSolar panel, double costoAdicionalSistema) {
         this.casa = casa;
@@ -28,50 +16,48 @@ public class CalculadoraPanels {
         this.costoAdicionalSistema = costoAdicionalSistema;
     }
 
-   public double getHorasSolEstimadas() {
-            // Si la casa tiene coordenadas configuradas (diferentes a 0)
-        if (casa.getLatitud() != 0.0 || casa.getLongitud() != 0.0) {
-            return SolarAPIUsuario.obtenerHorasSolPico(casa.getLatitud(), casa.getLongitud());
-        }
+    public double getHorasSolEstimadas() {
+        return SolarAPIUsuario.obtenerHorasSolPico(casa.getLatitud(), casa.getLongitud(), casa.getCiudad());
+    
+    }
 
-        // Si no hay coordenadas, usamos el mapa estático de ciudades
-        String ciudadClave = casa.getCiudad().trim().toLowerCase();
-        for (String key : MAPA_HORAS_SOL.keySet()) {
-            if (key.toLowerCase().equals(ciudadClave)) {
-                return MAPA_HORAS_SOL.get(key);
-            }
-        }
-        return 5.0;// Fallback total
-
-        }
     public int calcularNumeroPaneles() {
+        if (panel == null) return 0;
+        
         double consumoDiarioKWh = casa.getConsumoDiarioKWh();
         double horasSol = getHorasSolEstimadas();
-        double produccionPorPanel = panel.produccionDiariaKWh(horasSol);
+        
+        double eficienciaDecimal = panel.getEficiencia() / 100.0;
+        double produccionPorPanel = (panel.getPotenciaWatts() / 1000.0) * horasSol * eficienciaDecimal;
 
-        if (produccionPorPanel <= 0) {
-            return 0;
-        }
+        if (produccionPorPanel <= 0) return 0;
 
         return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
     }
 
     public static int calcularPanelesParaConsumoMensual(PanelSolar panel, double consumoMensualKWh, double horasSolEfectivas) {
+        if (panel == null) return 0;
+        
         double consumoDiarioKWh = consumoMensualKWh / 30.0;
-        double produccionPorPanel = panel.produccionDiariaKWh(horasSolEfectivas);
-        if (produccionPorPanel <= 0) {
-            return 0;
-        }
+        double eficienciaDecimal = panel.getEficiencia() / 100.0;
+        double produccionPorPanel = (panel.getPotenciaWatts() / 1000.0) * horasSolEfectivas * eficienciaDecimal;
+        
+        if (produccionPorPanel <= 0) return 0;
         return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
     }
 
     public double calcularCostoTotal() {
+        if (panel == null) return costoAdicionalSistema;
+        
         int numPaneles = calcularNumeroPaneles();
-        double costoPaneles = numPaneles * panel.getCostoPorPanel();
-        return costoPaneles + costoAdicionalSistema;
+        return (numPaneles * panel.getCostoUnidad()) + costoAdicionalSistema;
     }
 
     public String generarResumen() {
+        if (panel == null) {
+            return "Resumen del sistema solar:\n- Casa: " + casa.toString() + "\n No se ha seleccionado ningún panel solar.";
+        }
+        
         int numPaneles = calcularNumeroPaneles();
         double costoTotal = calcularCostoTotal();
         double horasSolUsadas = getHorasSolEstimadas();
@@ -79,7 +65,7 @@ public class CalculadoraPanels {
         return "Resumen del sistema solar:\n" +
                "- Casa: " + casa.toString() + "\n" +
                "- Horas de sol estimadas: " + String.format("%.1f h", horasSolUsadas) + "\n" +
-               "- Panel usado: " + panel.toString() + "\n" +
+               "- Panel usado: " + panel.getNombre() + " (" + panel.getTipo() + ")\n" +
                "- Paneles necesarios: " + numPaneles + "\n" +
                "- Costo total estimado: $" + String.format("%.2f", costoTotal);
     }

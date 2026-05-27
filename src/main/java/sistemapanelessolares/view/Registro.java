@@ -1,125 +1,157 @@
 package sistemapanelessolares.view;
-import java.util.Scanner;
-import sistemapanelessolares.dominio.Casa;
-import sistemapanelessolares.dominio.PanelSolar;
-import sistemapanelessolares.dominio.Usuario;
-import sistemapanelessolares.validadores.*;
 
+import java.sql.Connection;
+import java.util.Optional;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import sistemapanelessolares.dominio.Casa;
+import sistemapanelessolares.dominio.Usuario;
+import sistemapanelessolares.bdd.usuarioDAO;
+import sistemapanelessolares.bdd.casaDAO;
 
 public class Registro {
 
-    private Scanner scanner;
+    private final Connection conexionDB;
+    private final usuarioDAO userDAO;
+    private final casaDAO homeDAO;
 
-    public Registro() {
-        this.scanner = new Scanner(System.in);
-    }
-
-    public Usuario registrarNuevoUsuario() {
-        System.out.println("--- REGISTRO DE USUARIO ---");
-        
-        String nombre;
-        do {
-            System.out.print("Nombre: ");
-            nombre = scanner.nextLine();
-            try {
-                validadorUsuario.validarNombre(nombre);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(" Error: " + e.getMessage());
-            }
-        } while (true);
-        
-        String apellido;
-        do {
-            System.out.print("Apellido: ");
-            apellido = scanner.nextLine();
-            try {
-                validadorUsuario.validarApellido(apellido);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(" Error: " + e.getMessage());
-            }
-        } while (true);
-        
-        String telefono;
-        do {
-            System.out.print("Teléfono: ");
-            telefono = scanner.nextLine();
-            try {
-                validadorUsuario.validarTelefono(telefono);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(" Error: " + e.getMessage());
-            }
-        } while (true);
-        
-        String correo;
-        do {
-            System.out.print("Correo electrónico: ");
-            correo = scanner.nextLine();
-            try {
-                validadorUsuario.validarCorreo(correo);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(" Error: " + e.getMessage());
-            }
-        } while (true);
-        
-        String pass;
-        do {
-            System.out.print("Contraseña (min. 6 caracteres): ");
-            pass = scanner.nextLine();
-            try {
-                validadorUsuario.validarContrasena(pass);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(" Error: " + e.getMessage());
-            }
-        } while (true);
-
-        Usuario nuevoUsuario = new Usuario(1, nombre, apellido, telefono, correo, pass);
-
-        System.out.println("✔ Usuario registrado correctamente.");
-        return nuevoUsuario;
-    }
-
-    public Casa registrarCasa() {
-        System.out.println("\n--- REGISTRO DE PROPIEDAD ---");
-        System.out.print("Dirección: ");
-        String direccion = scanner.nextLine();
-        
-        System.out.print("Ciudad: ");
-        String ciudad = scanner.nextLine();
-        
-        System.out.print("Consumo mensual en kWh: ");
-        double consumo = Double.parseDouble(scanner.nextLine());
-        
-        System.out.print("Latitud (0 si no conoce): ");
-        double lat = Double.parseDouble(scanner.nextLine());
-        
-        System.out.print("Longitud (0 si no conoce): ");
-        double lon = Double.parseDouble(scanner.nextLine());
-
-        return new Casa(direccion, ciudad, consumo, lat, lon);
-    }
-
-    public PanelSolar seleccionarPanel() {
-        System.out.println("\n--- SELECCIÓN DE PANEL SOLAR ---");
-        System.out.println("1. Triada Solar 450W (Eficiencia 22%) - $2,100,000");
-        System.out.println("2. Heinsen Solar 400W (Eficiencia 21%) - $1,900,000");
-        System.out.print("Seleccione una opción (1 o 2): ");
-        
-        int opcion = Integer.parseInt(scanner.nextLine());
-        
-        System.out.print("Ingrese costo adicional de instalación (inversor, mano de obra, etc): ");
-        double costoInstalacion = Double.parseDouble(scanner.nextLine());
-
-        if (opcion == 1) {
-            return new PanelSolar("Triada 450W", 450, 0.22, 2100000.0, costoInstalacion);
+    public Registro(Connection conexionDB) {
+        this.conexionDB = conexionDB;
+        if (conexionDB != null) {
+            this.userDAO = new usuarioDAO(conexionDB);
+            this.homeDAO = new casaDAO(conexionDB);
         } else {
-            return new PanelSolar("Heinsen 400W", 400, 0.21, 1900000.0, costoInstalacion);
+            this.userDAO = null;
+            this.homeDAO = null;
         }
     }
+
+    // ----------------------------------------------------------------
+    // 🖥️ MODAL GRÁFICO: Registrar un Nuevo Usuario (JavaFX)
+    // ----------------------------------------------------------------
+    public Optional<Usuario> mostrarModalRegistroUsuario() {
+        Dialog<Usuario> dialog = new Dialog<>();
+        dialog.setTitle("EnergiApp - Registro de Cuenta");
+        dialog.setHeaderText("Cree su cuenta de usuario para el sistema proyectivo:");
+
+        ButtonType btnGuardarTipo = new ButtonType("Registrarse", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(btnGuardarTipo, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10); grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField txtNombre = new TextField(); txtNombre.setPromptText("Nombre");
+        TextField txtApellido = new TextField(); txtApellido.setPromptText("Apellido");
+        TextField txtTelefono = new TextField(); txtTelefono.setPromptText("Teléfono");
+        TextField txtCorreo = new TextField(); txtCorreo.setPromptText("ejemplo@mail.com");
+        PasswordField txtPassword = new PasswordField(); txtPassword.setPromptText("Contraseña");
+
+        grid.add(new Label("Nombre:"), 0, 0); grid.add(txtNombre, 1, 0);
+        grid.add(new Label("Apellido:"), 0, 1); grid.add(txtApellido, 1, 1);
+        grid.add(new Label("Teléfono:"), 0, 2); grid.add(txtTelefono, 1, 2);
+        grid.add(new Label("Correo:"), 0, 3); grid.add(txtCorreo, 1, 3);
+        grid.add(new Label("Contraseña:"), 0, 4); grid.add(txtPassword, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == btnGuardarTipo) {
+                if (txtNombre.getText().trim().isEmpty() || txtCorreo.getText().trim().isEmpty() || txtPassword.getText().isEmpty()) {
+                    mostrarAlerta("Campos vacíos", "El nombre, correo y contraseña son obligatorios.", Alert.AlertType.WARNING);
+                    return null;
+                }
+                return new Usuario(
+                    txtNombre.getText().trim(),
+                    txtApellido.getText().trim(),
+                    txtTelefono.getText().trim(),
+                    txtCorreo.getText().trim(),
+                    txtPassword.getText()
+                );
+            }
+            return null;
+        });
+
+        Optional<Usuario> resultado = dialog.showAndWait();
+        
+        if (resultado.isPresent() && conexionDB != null && userDAO != null) {
+            try {
+                Usuario guardado = userDAO.guardar(resultado.get());
+                if (guardado != null && guardado.getIdUsuario() > 0) {
+                    mostrarAlerta("Éxito", "Usuario registrado permanentemente en la Base de Datos.", Alert.AlertType.INFORMATION);
+                    return Optional.of(guardado);
+                } else {
+                    mostrarAlerta("Error", "No se pudo registrar en la base de datos.", Alert.AlertType.ERROR);
+                }
+            } catch (Exception e) {
+                mostrarAlerta("Error Crítico", "Error en pgAdmin: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
+        return resultado;
+    }
+
+    // ----------------------------------------------------------------
+    // 🏠 MODAL GRÁFICO: Registrar una Casa / Propiedad (JavaFX)
+    // ----------------------------------------------------------------
+    public Optional<Casa> mostrarModalRegistroCasa(int idUsuario) {
+        Dialog<Casa> dialog = new Dialog<>();
+        dialog.setTitle("EnergiApp - Registrar Propiedad");
+        dialog.setHeaderText("Ingrese los datos de consumo de la vivienda:");
+
+        ButtonType btnGuardarTipo = new ButtonType("Guardar Propiedad", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(btnGuardarTipo, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10); grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField txtDireccion = new TextField(); txtDireccion.setPromptText("Ej: Calle 15 #4-12");
+        TextField txtCiudad = new TextField("Valledupar");
+        TextField txtConsumo = new TextField(); txtConsumo.setPromptText("Ej: 450.5");
+        TextField txtLat = new TextField("0");
+        TextField txtLon = new TextField("0");
+
+        grid.add(new Label("Dirección:"), 0, 0); grid.add(txtDireccion, 1, 0);
+        grid.add(new Label("Ciudad:"), 0, 1); grid.add(txtCiudad, 1, 1);
+        grid.add(new Label("Consumo Mensual (kWh):"), 0, 2); grid.add(txtConsumo, 1, 2);
+        grid.add(new Label("Latitud (Opcional):"), 0, 3); grid.add(txtLat, 1, 3);
+        grid.add(new Label("Longitud (Opcional):"), 0, 4); grid.add(txtLon, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == btnGuardarTipo) {
+                try {
+                    double consumo = Double.parseDouble(txtConsumo.getText().trim());
+                    double lat = Double.parseDouble(txtLat.getText().trim());
+                    double lon = Double.parseDouble(txtLon.getText().trim());
+                    
+                    return new Casa(txtDireccion.getText().trim(), txtCiudad.getText().trim(), consumo, lat, lon);
+                } catch (NumberFormatException e) {
+                    mostrarAlerta("Formato Incorrecto", "El consumo, la latitud y longitud deben ser números válidos.", Alert.AlertType.ERROR);
+                }
+            }
+            return null;
+        });
+
+        Optional<Casa> resultado = dialog.showAndWait();
+
+        if (resultado.isPresent() && conexionDB != null && homeDAO != null) {
+            boolean exito = homeDAO.guardarCasa(resultado.get(), idUsuario);
+            if (exito) {
+                mostrarAlerta("Propiedad Registrada", "Vivienda enlazada con éxito a su cuenta en pgAdmin.", Alert.AlertType.INFORMATION);
+            }
+        }
+        return resultado;
+    }
+
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+    }
 }
-
-

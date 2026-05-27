@@ -1,6 +1,7 @@
 package sistemapanelessolares.dominio;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray; 
 import com.google.gson.JsonParser;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -20,94 +21,69 @@ public class ChatBoot {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-   public String enviarMensaje(String mensaje) {
-    try {
+    public String enviarMensaje(String mensaje) {
+        try {
+            // 1. Construcción limpia del árbol JSON para Gemini
+            JsonObject textPart = new JsonObject();
+            textPart.addProperty("text", mensaje);
 
-        JsonObject textPart = new JsonObject();
-        textPart.addProperty("text", mensaje);
+            JsonArray parts = new JsonArray();
+            parts.add(textPart);
 
-        com.google.gson.JsonArray parts = new com.google.gson.JsonArray();
-        parts.add(textPart);
+            JsonObject contentPart = new JsonObject();
+            contentPart.add("parts", parts);
 
-        JsonObject contentPart = new JsonObject();
-        contentPart.add("parts", parts);
+            JsonArray contents = new JsonArray();
+            contents.add(contentPart);
 
-        com.google.gson.JsonArray contents = new com.google.gson.JsonArray();
-        contents.add(contentPart);
+            JsonObject payload = new JsonObject();
+            payload.add("contents", contents);
 
-        JsonObject payload = new JsonObject();
-        payload.add("contents", contents);
+            // 2. Configuración del Request HTTP
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .header("X-Goog-Api-Key", apiKey) // ¡CORREGIDO!: Letras mayúsculas en 'Goog'
+                    .POST(HttpRequest.BodyPublishers.ofString(payload.toString(), StandardCharsets.UTF_8))
+                    .build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl))
-                .header("Content-Type", "application/json")
-                .header("X-goog-api-key", apiKey)
-                .POST(HttpRequest.BodyPublishers.ofString(
-                        payload.toString(),
-                        StandardCharsets.UTF_8))
-                .build();
+            // 3. Envío y recepción de respuesta
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        HttpResponse<String> response =
-                httpClient.send(
-                        request,
-                        HttpResponse.BodyHandlers.ofString());
+            // 4. Procesamiento de la respuesta HTTP
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
-        if (response.statusCode() >= 200
-                && response.statusCode() < 300) {
+                // Validaciones seguras capa por capa para extraer el texto de respuesta de la IA
+                if (json.has("candidates") && !json.getAsJsonArray("candidates").isEmpty()) {
+                    JsonObject firstCandidate = json.getAsJsonArray("candidates").get(0).getAsJsonObject();
 
-            JsonObject json =
-                    JsonParser.parseString(response.body())
-                            .getAsJsonObject();
+                    if (firstCandidate.has("content")) {
+                        JsonObject content = firstCandidate.getAsJsonObject("content");
 
-            if (json.has("candidates")
-                    && json.getAsJsonArray("candidates").size() > 0) {
+                        if (content.has("parts")) {
+                            JsonArray partsArray = content.getAsJsonArray("parts");
 
-                JsonObject firstCandidate =
-                        json.getAsJsonArray("candidates")
-                                .get(0)
-                                .getAsJsonObject();
+                            if (!partsArray.isEmpty()) {
+                                JsonObject firstPart = partsArray.get(0).getAsJsonObject();
 
-                if (firstCandidate.has("content")) {
-
-                    JsonObject content =
-                            firstCandidate.getAsJsonObject("content");
-
-                    if (content.has("parts")) {
-
-                        com.google.gson.JsonArray partsArray =
-                                content.getAsJsonArray("parts");
-
-                        if (partsArray.size() > 0) {
-
-                            JsonObject firstPart =
-                                    partsArray.get(0).getAsJsonObject();
-
-                            if (firstPart.has("text")) {
-                                return firstPart
-                                        .get("text")
-                                        .getAsString();
+                                if (firstPart.has("text")) {
+                                    return firstPart.get("text").getAsString();
+                                }
                             }
                         }
                     }
                 }
+                return response.body();
             }
 
-            return response.body();
+            return "⚠ Error en API de Google: " + response.statusCode() + " - " + response.body();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return " Error de conexión al enviar mensaje: " + e.getMessage();
         }
-
-        return "Error en API: "
-                + response.statusCode()
-                + " - "
-                + response.body();
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-
-        return "Error de conexión al enviar mensaje: "
-                + e.getMessage();
     }
-}
 
     public String obtenerApiUrl() {
         return apiUrl;
