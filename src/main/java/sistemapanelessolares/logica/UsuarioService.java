@@ -2,7 +2,6 @@ package sistemapanelessolares.logica;
 
 import sistemapanelessolares.dao.UsuarioDAO;
 import sistemapanelessolares.dominio.Usuario;
-import sistemapanelessolares.validadores.validadorUsuario;
 
 public class UsuarioService {
 
@@ -12,22 +11,22 @@ public class UsuarioService {
         this.usuarioDAO = new UsuarioDAO();
     }
 
-   public Usuario registrar(Usuario usuario) {
-    if (usuarioDAO.buscarPorCorreo(usuario.getCorreo()) != null) {
-        throw new IllegalArgumentException("Ya existe un usuario con el correo: " + usuario.getCorreo());
+    public Usuario registrar(Usuario usuario) {
+        if (usuarioDAO.buscarPorCorreo(usuario.getCorreo()) != null) {
+            throw new IllegalArgumentException("Ya existe un usuario con el correo: " + usuario.getCorreo());
+        }
+        usuarioDAO.guardar(usuario);
+        if (usuario.getIdUsuario() == 0) {
+            System.err.println("ERROR: No se guardo en Supabase");
+        } else {
+            System.out.println("Guardado en Supabase con ID: " + usuario.getIdUsuario());
+        }
+        return usuario;
     }
-    usuarioDAO.guardar(usuario);
-    if (usuario.getIdUsuario() == 0) {
-        System.err.println("ERROR: No se guardó en Supabase - revisar ConexionDB");
-    } else {
-        System.out.println("Guardado en Supabase con ID: " + usuario.getIdUsuario());
-    }
-    return usuario;
-}
 
     public Usuario autenticar(String correo, String contrasena) {
         Usuario usuario = usuarioDAO.buscarPorCorreo(correo);
-        if (usuario != null && usuario.getContraseña().equals(contrasena)) {
+        if (usuario != null && usuario.getContrasena().equals(contrasena)) {
             return usuario;
         }
         return null;
@@ -40,5 +39,4 @@ public class UsuarioService {
     public boolean actualizar(Usuario usuario) {
         return usuarioDAO.actualizar(usuario);
     }
-   
 }

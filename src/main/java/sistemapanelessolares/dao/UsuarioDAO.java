@@ -20,12 +20,14 @@ public class UsuarioDAO {
             ps.setString(2, usuario.getApellido());
             ps.setString(3, usuario.getTelefono());
             ps.setString(4, usuario.getCorreo());
-            ps.setString(5, usuario.getContraseña());
+            ps.setString(5, usuario.getContrasena());
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) usuario.setIdUsuario(rs.getInt("id_usuario"));
-            System.out.println("Guardado con ID: " + usuario.getIdUsuario());
+            if (rs.next()) {
+                usuario.setIdUsuario(rs.getInt("id_usuario"));
+                System.out.println("Usuario guardado con ID: " + usuario.getIdUsuario());
+            }
         } catch (Exception e) {
-            System.err.println("Error al guardar: " + e.getMessage());
+            System.err.println("Error al guardar usuario: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -40,7 +42,6 @@ public class UsuarioDAO {
             if (rs.next()) return mapear(rs);
         } catch (Exception e) {
             System.err.println("Error buscarPorCorreo: " + e.getMessage());
-            e.printStackTrace();
         }
         return null;
     }
@@ -53,7 +54,7 @@ public class UsuarioDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapear(rs);
         } catch (Exception e) {
-            System.err.println("Error al buscar por id: " + e.getMessage());
+            System.err.println("Error buscarPorId: " + e.getMessage());
         }
         return null;
     }
@@ -66,7 +67,7 @@ public class UsuarioDAO {
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) lista.add(mapear(rs));
         } catch (Exception e) {
-            System.err.println("Error al listar usuarios: " + e.getMessage());
+            System.err.println("Error listar usuarios: " + e.getMessage());
         }
         return lista;
     }
@@ -79,11 +80,11 @@ public class UsuarioDAO {
             ps.setString(2, u.getApellido());
             ps.setString(3, u.getTelefono());
             ps.setString(4, u.getCorreo());
-            ps.setString(5, u.getContraseña());
+            ps.setString(5, u.getContrasena());
             ps.setInt(6, u.getIdUsuario());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al actualizar usuario: " + e.getMessage());
+            System.err.println("Error actualizar usuario: " + e.getMessage());
             return false;
         }
     }
@@ -95,15 +96,19 @@ public class UsuarioDAO {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al eliminar usuario: " + e.getMessage());
+            System.err.println("Error eliminar usuario: " + e.getMessage());
             return false;
         }
     }
 
     private Usuario mapear(ResultSet rs) throws SQLException {
-        return new Usuario(rs.getInt("id_usuario"), rs.getString("nombre"),
-    rs.getString("apellido"), rs.getString("telefono"),
-    rs.getString("correo"), rs.getString("contrasena")
+        return new Usuario(
+            rs.getInt("id_usuario"),
+            rs.getString("nombre"),
+            rs.getString("apellido"),
+            rs.getString("telefono"),
+            rs.getString("correo"),
+            rs.getString("contrasena")
         );
     }
 }

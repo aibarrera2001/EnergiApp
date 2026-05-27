@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sistemapanelessolares.dao;
 
 import sistemapanelessolares.dominio.Casa;
@@ -43,7 +39,7 @@ public class CasaDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) lista.add(mapear(rs));
         } catch (Exception e) {
-            System.err.println("Error al listar casas: " + e.getMessage());
+            System.err.println("Error listar casas: " + e.getMessage());
         }
         return lista;
     }
@@ -55,7 +51,7 @@ public class CasaDAO {
             ps.setInt(1, idCasa);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al eliminar casa: " + e.getMessage());
+            System.err.println("Error eliminar casa: " + e.getMessage());
             return false;
         }
     }
