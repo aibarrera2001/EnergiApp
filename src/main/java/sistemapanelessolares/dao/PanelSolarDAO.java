@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sistemapanelessolares.dao;
 
 import sistemapanelessolares.dominio.PanelSolar;
@@ -19,7 +15,7 @@ public class PanelSolarDAO {
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) lista.add(mapear(rs));
         } catch (Exception e) {
-            System.err.println("Error al listar paneles: " + e.getMessage());
+            System.err.println("Error listar paneles: " + e.getMessage());
         }
         return lista;
     }
@@ -32,29 +28,32 @@ public class PanelSolarDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapear(rs);
         } catch (Exception e) {
-            System.err.println("Error al buscar panel: " + e.getMessage());
+            System.err.println("Error buscar panel: " + e.getMessage());
         }
         return null;
     }
 
     public void guardar(PanelSolar panel) {
-        String sql = "INSERT INTO paneles_solares (modelo, potencia_w, eficiencia, precio, costo_instalacion) "
-                   + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO paneles_solares (nombre, tipo, potencia_w, eficiencia, precio, costo_instalacion, garantia_anios, descripcion) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = ConexionDB.conectar();
         if (conn == null) {
             System.err.println("ERROR: No hay conexion a Supabase");
             return;
         }
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, panel.getModelo());
-            ps.setDouble(2, panel.getPotenciaW());
-            ps.setDouble(3, panel.getEficiencia());
-            ps.setDouble(4, panel.getCostoPorPanel());
-            ps.setDouble(5, panel.getCostoInstalacion());
+            ps.setString(1, panel.getNombre());
+            ps.setString(2, panel.getTipo());
+            ps.setDouble(3, panel.getPotenciaWatts());
+            ps.setDouble(4, panel.getEficiencia());
+            ps.setDouble(5, panel.getCostoUnidad());
+            ps.setDouble(6, panel.getCostoInstalacion());
+            ps.setString(7, panel.getGarantiaAnios());
+            ps.setString(8, panel.getDescripcion());
             ps.executeUpdate();
             System.out.println("Panel guardado correctamente.");
         } catch (Exception e) {
-            System.err.println("Error al guardar panel: " + e.getMessage());
+            System.err.println("Error guardar panel: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -66,18 +65,22 @@ public class PanelSolarDAO {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al eliminar panel: " + e.getMessage());
+            System.err.println("Error eliminar panel: " + e.getMessage());
             return false;
         }
     }
 
     private PanelSolar mapear(ResultSet rs) throws SQLException {
         return new PanelSolar(
-            rs.getString("modelo"),
+            rs.getInt("id"),
+            rs.getString("nombre"),
+            rs.getString("tipo"),
             rs.getDouble("potencia_w"),
             rs.getDouble("eficiencia"),
             rs.getDouble("precio"),
-            rs.getDouble("costo_instalacion")
+            rs.getDouble("costo_instalacion"),
+            rs.getString("garantia_anios"),
+            rs.getString("descripcion")
         );
     }
 }

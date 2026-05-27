@@ -1,14 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sistemapanelessolares.dao;
-
-/**
- *
- * @author Andrés
- */
-
 
 import sistemapanelessolares.dominio.Administrativo;
 import java.sql.*;
@@ -18,8 +8,8 @@ import java.util.List;
 public class AdministrativoDAO {
 
     public void guardar(Administrativo admin) {
-        String sql = "INSERT INTO administrativos (nombre, apellido, telefono, rol, departamento) "
-                   + "VALUES (?, ?, ?, ?, ?) RETURNING id";
+        String sql = "INSERT INTO administrativos (nombre, apellido, telefono, rol, correo, contrasena) "
+                   + "VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
         Connection conn = ConexionDB.conectar();
         if (conn == null) {
             System.err.println("ERROR: No hay conexion a Supabase");
@@ -30,7 +20,8 @@ public class AdministrativoDAO {
             ps.setString(2, admin.getApellido());
             ps.setString(3, admin.getTelefono());
             ps.setString(4, admin.getRol());
-            ps.setString(5, admin.getDepartamento());
+            ps.setString(5, admin.getCorreo());
+            ps.setString(6, admin.getContrasena());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) System.out.println("Administrativo guardado con ID: " + rs.getInt("id"));
         } catch (Exception e) {
@@ -39,17 +30,18 @@ public class AdministrativoDAO {
         }
     }
 
-    public List<Administrativo> listarTodos() {
-        List<Administrativo> lista = new ArrayList<>();
-        String sql = "SELECT * FROM administrativos";
-        try (Connection conn = ConexionDB.conectar();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) lista.add(mapear(rs));
+    public Administrativo buscarPorCorreo(String correo) {
+        String sql = "SELECT * FROM administrativos WHERE correo = ?";
+        Connection conn = ConexionDB.conectar();
+        if (conn == null) return null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapear(rs);
         } catch (Exception e) {
-            System.err.println("Error al listar administrativos: " + e.getMessage());
+            System.err.println("Error buscarPorCorreo admin: " + e.getMessage());
         }
-        return lista;
+        return null;
     }
 
     public Administrativo buscarPorId(int id) {
@@ -60,24 +52,38 @@ public class AdministrativoDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapear(rs);
         } catch (Exception e) {
-            System.err.println("Error al buscar administrativo: " + e.getMessage());
+            System.err.println("Error buscarPorId admin: " + e.getMessage());
         }
         return null;
     }
 
+    public List<Administrativo> listarTodos() {
+        List<Administrativo> lista = new ArrayList<>();
+        String sql = "SELECT * FROM administrativos";
+        try (Connection conn = ConexionDB.conectar();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) lista.add(mapear(rs));
+        } catch (Exception e) {
+            System.err.println("Error listar administrativos: " + e.getMessage());
+        }
+        return lista;
+    }
+
     public boolean actualizar(Administrativo admin) {
-        String sql = "UPDATE administrativos SET nombre=?, apellido=?, telefono=?, rol=?, departamento=? WHERE id=?";
+        String sql = "UPDATE administrativos SET nombre=?, apellido=?, telefono=?, rol=?, correo=?, contrasena=? WHERE id=?";
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, admin.getNombre());
             ps.setString(2, admin.getApellido());
             ps.setString(3, admin.getTelefono());
             ps.setString(4, admin.getRol());
-            ps.setString(5, admin.getDepartamento());
-            ps.setInt(6, admin.getId());
+            ps.setString(5, admin.getCorreo());
+            ps.setString(6, admin.getContrasena());
+            ps.setInt(7, admin.getId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al actualizar administrativo: " + e.getMessage());
+            System.err.println("Error actualizar admin: " + e.getMessage());
             return false;
         }
     }
@@ -89,7 +95,7 @@ public class AdministrativoDAO {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al eliminar administrativo: " + e.getMessage());
+            System.err.println("Error eliminar admin: " + e.getMessage());
             return false;
         }
     }
@@ -101,7 +107,8 @@ public class AdministrativoDAO {
             rs.getString("apellido"),
             rs.getString("telefono"),
             rs.getString("rol"),
-            rs.getString("departamento")
+            rs.getString("correo"),
+            rs.getString("contrasena")
         );
     }
 }
