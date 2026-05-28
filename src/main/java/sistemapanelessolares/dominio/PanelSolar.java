@@ -62,6 +62,22 @@ public class PanelSolar {
         return costoUnidad;
     }
 
+    public double getPrecioDolar() {
+        return costoUnidad;
+    }
+
+    public double getPrecio() {
+        return costoUnidad;
+    }
+
+    public double getPotencia() {
+        return potenciaWatts;
+    }
+
+    public String getGarantia() {
+        return garantiaAnios;
+    }
+
     // ----------------------------------------------------------------
     //  Getters y Setters
     // ----------------------------------------------------------------
