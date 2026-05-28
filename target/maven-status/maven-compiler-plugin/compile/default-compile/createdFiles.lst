@@ -12,6 +12,7 @@ sistemapanelessolares\dominio\Casa.class
 sistemapanelessolares\view\InicioSessionAdministrativoFX.class
 sistemapanelessolares\view\inicioSessionUsuarioFX.class
 sistemapanelessolares\dominio\ChatBoot.class
+sistemapanelessolares\logica\ConfiguracionAPI.class
 sistemapanelessolares\app\main.class
 sistemapanelessolares\dominio\Usuario.class
 sistemapanelessolares\dao\PanelSolarDAO.class
@@ -26,6 +27,7 @@ sistemapanelessolares\validadores\validadorAdministrativo.class
 sistemapanelessolares\bdd\usuarioDAO.class
 sistemapanelessolares\dao\CasaDAO.class
 sistemapanelessolares\logica\UsuarioService.class
+sistemapanelessolares\logica\ChatController.class
 sistemapanelessolares\bdd\conexionDB.class
 sistemapanelessolares\dao\ConexionDB.class
 sistemapanelessolares\logica\CalculadoraPanels.class
