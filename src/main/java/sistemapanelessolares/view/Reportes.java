@@ -4,7 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class Paneles extends JFrame {
+public class Reportes extends JFrame {
 
     // =========================
     // COLORES DEL SISTEMA
@@ -16,12 +16,12 @@ public class Paneles extends JFrame {
     private final Color azulClaro = new Color(230, 235, 255);
     private final Color grisTexto = new Color(120, 120, 120);
 
-    public Paneles() {
+    public Reportes() {
 
         // =========================
         // CONFIGURACIÓN VENTANA
         // =========================
-        setTitle("EnergiApp - Paneles Solares");
+        setTitle("EnergiApp - Reportes");
         setSize(1400, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -58,7 +58,7 @@ public class Paneles extends JFrame {
         sidebar.add(Box.createRigidArea(new Dimension(0, 40)));
 
         // =========================
-        // BOTONES MENU
+        // MENÚ
         // =========================
         String[] menuItems = {
                 "Dashboard",
@@ -73,9 +73,10 @@ public class Paneles extends JFrame {
 
             JButton btn = createSidebarButton(item);
 
-            if (item.equals("Paneles")) {
+            if (item.equals("Reportes")) {
 
                 btn.setBackground(azulBoton);
+
                 btn.setForeground(Color.WHITE);
             }
 
@@ -103,7 +104,7 @@ public class Paneles extends JFrame {
         add(sidebar, BorderLayout.WEST);
 
         // =========================
-        // PANEL PRINCIPAL
+        // MAIN PANEL
         // =========================
         JPanel mainPanel = new JPanel();
 
@@ -126,14 +127,14 @@ public class Paneles extends JFrame {
 
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
 
-        JLabel title = new JLabel("Catálogo de Paneles Solares");
+        JLabel title = new JLabel("Reportes Energéticos");
 
         title.setFont(new Font("SansSerif", Font.BOLD, 34));
 
         title.setForeground(azulPrincipal);
 
         JLabel subtitle = new JLabel(
-                "Selecciona el panel ideal para maximizar el ahorro energético"
+                "Visualiza el ahorro y consumo energético de los últimos días"
         );
 
         subtitle.setForeground(grisTexto);
@@ -151,68 +152,93 @@ public class Paneles extends JFrame {
         mainPanel.add(header, BorderLayout.NORTH);
 
         // =========================
-        // PANEL DE TARJETAS
+        // PANEL CENTRAL
         // =========================
-        JPanel cardsPanel = new JPanel();
+        JPanel centerPanel = new JPanel();
 
-        cardsPanel.setOpaque(false);
+        centerPanel.setOpaque(false);
 
-        cardsPanel.setBorder(new EmptyBorder(20, 30, 30, 30));
+        centerPanel.setBorder(new EmptyBorder(20, 30, 30, 30));
 
-        cardsPanel.setLayout(new GridLayout(2, 3, 25, 25));
+        centerPanel.setLayout(new BorderLayout(20,20));
 
         // =========================
-        // TARJETAS DE PANELES
+        // TARJETAS RESUMEN
         // =========================
-        cardsPanel.add(createPanelCard(
-                "Panel Solar Eco 300W",
-                "$850.000",
-                "Ideal para hogares pequeños con bajo consumo energético.",
-                "300W"
+        JPanel resumenPanel = new JPanel(new GridLayout(1,3,20,20));
+
+        resumenPanel.setOpaque(false);
+
+        resumenPanel.add(createResumenCard(
+                "Ahorro Total",
+                "$3.250.000",
+                "Últimos 30 días"
         ));
 
-        cardsPanel.add(createPanelCard(
+        resumenPanel.add(createResumenCard(
+                "Consumo Total",
+                "1.840 kWh",
+                "Energía consumida"
+        ));
+
+        resumenPanel.add(createResumenCard(
+                "Panel Más Eficiente",
                 "SunPower Max 450W",
-                "$1.200.000",
-                "Alta eficiencia energética y excelente rendimiento.",
-                "450W"
+                "92% eficiencia"
         ));
 
-        cardsPanel.add(createPanelCard(
-                "SolarTech Premium 500W",
-                "$1.550.000",
-                "Perfecto para viviendas de alto consumo y negocios.",
-                "500W"
+        // =========================
+        // REPORTES
+        // =========================
+        JPanel reportesPanel = new JPanel();
+
+        reportesPanel.setLayout(new GridLayout(5,1,15,15));
+
+        reportesPanel.setOpaque(false);
+
+        reportesPanel.add(createReporteItem(
+                "01 Julio 2026",
+                "320 kWh",
+                "$450.000 ahorrados"
         ));
 
-        cardsPanel.add(createPanelCard(
-                "EcoGreen 350W",
-                "$980.000",
-                "Panel económico y eficiente para consumo moderado.",
-                "350W"
+        reportesPanel.add(createReporteItem(
+                "05 Julio 2026",
+                "280 kWh",
+                "$390.000 ahorrados"
         ));
 
-        cardsPanel.add(createPanelCard(
-                "PowerVolt 600W",
-                "$2.100.000",
-                "Máxima potencia para proyectos industriales.",
-                "600W"
+        reportesPanel.add(createReporteItem(
+                "10 Julio 2026",
+                "350 kWh",
+                "$520.000 ahorrados"
         ));
 
-        cardsPanel.add(createPanelCard(
-                "BlueEnergy 400W",
-                "$1.100.000",
-                "Excelente relación calidad-precio y larga duración.",
-                "400W"
+        reportesPanel.add(createReporteItem(
+                "15 Julio 2026",
+                "300 kWh",
+                "$430.000 ahorrados"
         ));
 
-        JScrollPane scrollPane = new JScrollPane(cardsPanel);
+        reportesPanel.add(createReporteItem(
+                "20 Julio 2026",
+                "270 kWh",
+                "$370.000 ahorrados"
+        ));
 
-        scrollPane.setBorder(null);
+        JPanel wrapper = new JPanel();
 
-        scrollPane.getViewport().setBackground(cremaClaro);
+        wrapper.setOpaque(false);
 
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        wrapper.setLayout(new BorderLayout(0,25));
+
+        wrapper.add(resumenPanel, BorderLayout.NORTH);
+
+        wrapper.add(reportesPanel, BorderLayout.CENTER);
+
+        centerPanel.add(wrapper, BorderLayout.CENTER);
+
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
     }
@@ -260,7 +286,7 @@ public class Paneles extends JFrame {
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
 
-                if (!text.equals("Paneles")) {
+                if (!text.equals("Reportes")) {
 
                     button.setBackground(azulClaro);
 
@@ -273,13 +299,12 @@ public class Paneles extends JFrame {
     }
 
     // =========================
-    // TARJETAS DE PANELES
+    // TARJETAS RESUMEN
     // =========================
-    private JPanel createPanelCard(
-            String nombre,
-            String precio,
-            String descripcion,
-            String potencia
+    private JPanel createResumenCard(
+            String titulo,
+            String valor,
+            String descripcion
     ) {
 
         JPanel card = new JPanel();
@@ -288,100 +313,97 @@ public class Paneles extends JFrame {
 
         card.setBackground(Color.WHITE);
 
-        card.setBorder(new EmptyBorder(20, 20, 20, 20));
+        card.setBorder(new EmptyBorder(20,20,20,20));
 
-        // ICONO
-        JLabel icon = new JLabel("☀");
+        JLabel lblTitulo = new JLabel(titulo);
 
-        icon.setFont(new Font("SansSerif", Font.BOLD, 50));
+        lblTitulo.setForeground(grisTexto);
 
-        icon.setForeground(azulBoton);
+        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 16));
 
-        icon.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel lblValor = new JLabel(valor);
 
-        // NOMBRE
-        JLabel lblNombre = new JLabel(nombre);
+        lblValor.setForeground(azulPrincipal);
 
-        lblNombre.setFont(new Font("SansSerif", Font.BOLD, 22));
+        lblValor.setFont(new Font("SansSerif", Font.BOLD, 28));
 
-        lblNombre.setForeground(azulPrincipal);
+        JLabel lblDescripcion = new JLabel(descripcion);
 
-        lblNombre.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // PRECIO
-        JLabel lblPrecio = new JLabel(precio);
-
-        lblPrecio.setFont(new Font("SansSerif", Font.BOLD, 28));
-
-        lblPrecio.setForeground(new Color(40, 160, 90));
-
-        lblPrecio.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // POTENCIA
-        JLabel lblPotencia = new JLabel("Potencia: " + potencia);
-
-        lblPotencia.setForeground(grisTexto);
-
-        lblPotencia.setFont(new Font("SansSerif", Font.BOLD, 15));
-
-        lblPotencia.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // DESCRIPCIÓN
-        JLabel lblDescripcion = new JLabel(
-                "<html><div style='text-align:center;width:250px;'>"
-                + descripcion
-                + "</div></html>"
-        );
-
-        lblDescripcion.setForeground(grisTexto);
+        lblDescripcion.setForeground(new Color(60,160,90));
 
         lblDescripcion.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
-        lblDescripcion.setAlignmentX(Component.CENTER_ALIGNMENT);
+        card.add(lblTitulo);
 
-        // BOTÓN
-        JButton comprar = new JButton("Seleccionar Panel");
+        card.add(Box.createRigidArea(new Dimension(0,10)));
 
-        comprar.setBackground(azulBoton);
+        card.add(lblValor);
 
-        comprar.setForeground(Color.WHITE);
-
-        comprar.setFocusPainted(false);
-
-        comprar.setBorderPainted(false);
-
-        comprar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        comprar.setFont(new Font("SansSerif", Font.BOLD, 14));
-
-        comprar.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // AGREGAR COMPONENTES
-        card.add(icon);
-
-        card.add(Box.createRigidArea(new Dimension(0, 15)));
-
-        card.add(lblNombre);
-
-        card.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        card.add(lblPrecio);
-
-        card.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        card.add(lblPotencia);
-
-        card.add(Box.createRigidArea(new Dimension(0, 15)));
+        card.add(Box.createRigidArea(new Dimension(0,10)));
 
         card.add(lblDescripcion);
 
-        card.add(Box.createVerticalGlue());
-
-        card.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        card.add(comprar);
-
         return card;
+    }
+
+    // =========================
+    // ITEMS REPORTE
+    // =========================
+    private JPanel createReporteItem(
+            String fecha,
+            String consumo,
+            String ahorro
+    ) {
+
+        JPanel item = new JPanel(new BorderLayout());
+
+        item.setBackground(Color.WHITE);
+
+        item.setBorder(new EmptyBorder(20,20,20,20));
+
+        JPanel infoPanel = new JPanel();
+
+        infoPanel.setOpaque(false);
+
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+
+        JLabel lblFecha = new JLabel(fecha);
+
+        lblFecha.setFont(new Font("SansSerif", Font.BOLD, 20));
+
+        lblFecha.setForeground(azulPrincipal);
+
+        JLabel lblConsumo = new JLabel(
+                "Consumo energético: " + consumo
+        );
+
+        lblConsumo.setForeground(grisTexto);
+
+        lblConsumo.setFont(new Font("SansSerif", Font.PLAIN, 15));
+
+        infoPanel.add(lblFecha);
+
+        infoPanel.add(Box.createRigidArea(new Dimension(0,8)));
+
+        infoPanel.add(lblConsumo);
+
+        JLabel ahorroLabel = new JLabel(ahorro);
+
+        ahorroLabel.setOpaque(true);
+
+        ahorroLabel.setBackground(new Color(220,245,220));
+
+        ahorroLabel.setForeground(new Color(40,160,90));
+
+        ahorroLabel.setBorder(new EmptyBorder(10,15,10,15));
+
+        ahorroLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
+
+        item.add(infoPanel, BorderLayout.WEST);
+
+        item.add(ahorroLabel, BorderLayout.EAST);
+
+        return item;
     }
 
     // =========================
@@ -402,7 +424,7 @@ public class Paneles extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
 
-            new Paneles().setVisible(true);
+            new Reportes().setVisible(true);
 
         });
     }
