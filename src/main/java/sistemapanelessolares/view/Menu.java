@@ -7,11 +7,27 @@ package main.java.sistemapanelessolares.view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.Cursor;
 /**
  *
  * @author jose
  */
 public class Menu extends JFrame{
+    
+    // =========================
+// COLORES DEL SISTEMA
+// =========================
+private final Color crema = new Color(252, 248, 240);
+
+private final Color cremaClaro = new Color(255, 253, 248);
+
+private final Color azulPrincipal = new Color(35, 70, 180);
+
+private final Color azulBoton = new Color(45, 85, 255);
+
+private final Color azulClaro = new Color(230, 235, 255);
+
+private final Color grisTexto = new Color(120, 120, 120);
     
      public Menu() {
 
@@ -269,77 +285,6 @@ public class Menu extends JFrame{
     }
 
     // =========================
-    // BOTONES SIDEBAR
-    // =========================
-    private JButton createSidebarButton(String text) {
-
-         Color azulClaro = new Color(230, 235, 255);
-    Color azulHover = new Color(45, 85, 255);
-    Color azulTexto = new Color(35, 70, 180);
-
-    JButton button = new JButton(text);
-
-    button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-
-    button.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-    // Fondo inicial
-    button.setBackground(azulClaro);
-
-    // Texto
-    button.setForeground(azulTexto);
-
-    // Fuente
-    button.setFont(new Font("SansSerif", Font.BOLD, 15));
-
-    // Bordes
-    button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-    button.setFocusPainted(false);
-
-    button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-    // Quitar borde feo de Swing
-    button.setBorderPainted(false);
-
-    // Hover effect
-    button.addMouseListener(new java.awt.event.MouseAdapter() {
-
-        @Override
-        public void mouseEntered(java.awt.event.MouseEvent evt) {
-
-            button.setBackground(azulHover);
-            button.setForeground(Color.WHITE);
-        }
-
-        @Override
-        public void mouseExited(java.awt.event.MouseEvent evt) {
-
-            // Mantener Dashboard seleccionado
-            if (text.equals("Dashboard")) {
-
-                button.setBackground(new Color(45, 85, 255));
-                button.setForeground(Color.WHITE);
-
-            } else {
-
-                button.setBackground(azulClaro);
-                button.setForeground(azulTexto);
-            }
-        }
-    });
-
-    // Dashboard activo por defecto
-    if (text.equals("Dashboard")) {
-
-        button.setBackground(new Color(45, 85, 255));
-        button.setForeground(Color.WHITE);
-    }
-
-    return button;
-    }
-
-    // =========================
     // TARJETAS
     // =========================
     private JPanel createCard(String title, String value, String desc) {
@@ -452,9 +397,102 @@ public class Menu extends JFrame{
         return item;
     }
 
+    private JButton createSidebarButton(String text) {
+
+    JButton button = new JButton(text);
+
+    button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+    button.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    button.setBackground(azulClaro);
+
+    button.setForeground(azulPrincipal);
+
+    button.setFont(new Font("SansSerif", Font.BOLD, 15));
+
+    button.setBorder(BorderFactory.createEmptyBorder(
+            10,
+            20,
+            10,
+            20
+    ));
+
+    button.setFocusPainted(false);
+
+    button.setBorderPainted(false);
+
+    button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
     // =========================
-    // MAIN
+    // HOVER
     // =========================
+    button.addMouseListener(new java.awt.event.MouseAdapter() {
+
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+
+            button.setBackground(azulBoton);
+
+            button.setForeground(Color.WHITE);
+        }
+
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            button.setBackground(azulClaro);
+
+            button.setForeground(azulPrincipal);
+        }
+    });
+
+    // =========================
+    // NAVEGACIÓN
+    // =========================
+    button.addActionListener(e -> {
+
+        switch (text) {
+
+            case "Dashboard":
+
+                NavigationManager.openDashboard(this);
+
+                break;
+
+            case "Propiedades":
+
+                NavigationManager.openPropiedades(this);
+
+                break;
+
+            case "Paneles":
+
+                NavigationManager.openPaneles(this);
+
+                break;
+
+            case "Reportes":
+
+                NavigationManager.openReportes(this);
+
+                break;
+
+            case "Mi perfil":
+
+                NavigationManager.openPerfil(this);
+
+                break;
+
+            case "Ajustes":
+
+                NavigationManager.openAjustes(this);
+
+                break;
+        }
+    });
+
+    return button;
+}
     public static void main(String[] args) {
 
         try {

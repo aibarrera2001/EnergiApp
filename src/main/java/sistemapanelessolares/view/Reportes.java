@@ -3,6 +3,7 @@ package main.java.sistemapanelessolares.view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.Cursor;
 
 public class Reportes extends JFrame {
 
@@ -244,61 +245,6 @@ public class Reportes extends JFrame {
     }
 
     // =========================
-    // BOTONES SIDEBAR
-    // =========================
-    private JButton createSidebarButton(String text) {
-
-        JButton button = new JButton(text);
-
-        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-
-        button.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        button.setBackground(azulClaro);
-
-        button.setForeground(azulPrincipal);
-
-        button.setFont(new Font("SansSerif", Font.BOLD, 15));
-
-        button.setBorder(BorderFactory.createEmptyBorder(
-                10,
-                20,
-                10,
-                20
-        ));
-
-        button.setFocusPainted(false);
-
-        button.setBorderPainted(false);
-
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-
-                button.setBackground(azulBoton);
-
-                button.setForeground(Color.WHITE);
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-
-                if (!text.equals("Reportes")) {
-
-                    button.setBackground(azulClaro);
-
-                    button.setForeground(azulPrincipal);
-                }
-            }
-        });
-
-        return button;
-    }
-
-    // =========================
     // TARJETAS RESUMEN
     // =========================
     private JPanel createResumenCard(
@@ -406,9 +352,104 @@ public class Reportes extends JFrame {
         return item;
     }
 
+    
+    private JButton createSidebarButton(String text) {
+
+    JButton button = new JButton(text);
+
+    button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+    button.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    button.setBackground(azulClaro);
+
+    button.setForeground(azulPrincipal);
+
+    button.setFont(new Font("SansSerif", Font.BOLD, 15));
+
+    button.setBorder(BorderFactory.createEmptyBorder(
+            10,
+            20,
+            10,
+            20
+    ));
+
+    button.setFocusPainted(false);
+
+    button.setBorderPainted(false);
+
+    button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
     // =========================
-    // MAIN
+    // HOVER
     // =========================
+    button.addMouseListener(new java.awt.event.MouseAdapter() {
+
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+
+            button.setBackground(azulBoton);
+
+            button.setForeground(Color.WHITE);
+        }
+
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+
+            button.setBackground(azulClaro);
+
+            button.setForeground(azulPrincipal);
+        }
+    });
+
+    // =========================
+    // NAVEGACIÓN
+    // =========================
+    button.addActionListener(e -> {
+
+        switch (text) {
+
+            case "Dashboard":
+
+                NavigationManager.openDashboard(this);
+
+                break;
+
+            case "Propiedades":
+
+                NavigationManager.openPropiedades(this);
+
+                break;
+
+            case "Paneles":
+
+                NavigationManager.openPaneles(this);
+
+                break;
+
+            case "Reportes":
+
+                NavigationManager.openReportes(this);
+
+                break;
+
+            case "Mi perfil":
+
+                NavigationManager.openPerfil(this);
+
+                break;
+
+            case "Ajustes":
+
+                NavigationManager.openAjustes(this);
+
+                break;
+        }
+    });
+
+    return button;
+}
+    
     public static void main(String[] args) {
 
         try {
