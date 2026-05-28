@@ -1,4 +1,4 @@
-package sistemapanelessolares.view;
+package main.java.sistemapanelessolares.view;
 import java.util.Scanner;
 import sistemapanelessolares.dominio.Casa;
 import sistemapanelessolares.dominio.PanelSolar;
