@@ -53,18 +53,13 @@ public class chatBootFX {
 
             String respuesta;
 
-            if (solarServicio != null &&
-                solarServicio.getChatBoot() != null) {
-
-                respuesta = solarServicio
-                        .getChatBoot()
-                        .enviarMensaje(pregunta);
-
-            } else {
-
-                respuesta = "Asistente IA no disponible.";
-            }
-
+         if (solarServicio != null) {
+    respuesta = solarServicio.consultarChat(pregunta);
+    } 
+        else {
+    respuesta = "Asistente IA no disponible.";
+     }
+         
             areaChat.appendText("Tú: " + pregunta + "\n\n");
             areaChat.appendText("IA: " + respuesta + "\n\n");
 

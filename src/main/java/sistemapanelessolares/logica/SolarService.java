@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sistemapanelessolares.dominio.Casa;
-import sistemapanelessolares.dominio.ChatBoot;
 import sistemapanelessolares.dominio.PanelSolar;
 import sistemapanelessolares.dominio.Usuario;
 import sistemapanelessolares.bdd.HistorialChat;
@@ -18,13 +17,8 @@ public class SolarService {
     private final GestorPaneles gestorPaneles;
     private final Registro registro;
     private final autentificacion autenticacion;
-    private final ChatBoot chatBoot;
+    private final ChatController chatController;
     private final HistorialChat historialRepo;
-
-    private static final String GEMINI_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
-    private static final String GEMINI_KEY =
-            "AIzaSyDzqWnEJ88hcwYFglpoOjWgos0drWCff30";
 
     // ----------------------------------------------------------------
     //  Constructor sin BD — catálogo en memoria con paneles por defecto
@@ -36,8 +30,9 @@ public class SolarService {
         
         this.registro      = new Registro(null);
         this.autenticacion = new autentificacion(null);
-        this.chatBoot      = new ChatBoot(GEMINI_URL, GEMINI_KEY);
         this.historialRepo = new HistorialChat();
+        // Inicializar ChatController DESPUÉS de que gestorPaneles esté listo
+        this.chatController = new ChatController(this);
     }
 
     // ----------------------------------------------------------------
@@ -47,7 +42,6 @@ public class SolarService {
     public SolarService(Connection conexionDB) {
         this.registro      = new Registro(conexionDB);
         this.autenticacion = new autentificacion(conexionDB);
-        this.chatBoot      = new ChatBoot(GEMINI_URL, GEMINI_KEY);
         this.historialRepo = new HistorialChat();
 
         GestorPaneles gp = new GestorPaneles();
@@ -64,6 +58,9 @@ public class SolarService {
             cargarPanelesSemilla(gp);
         }
         this.gestorPaneles = gp;
+        
+        // Inicializar ChatController con acceso a esta instancia de SolarService
+        this.chatController = new ChatController(this);
     }
 
     // ----------------------------------------------------------------
@@ -151,12 +148,34 @@ public class SolarService {
         return historialRepo.listarPorUsuario(idUsuario);
     }
 
+    /**
+     * Procesa un mensaje del usuario a través del chatbot contextualizado de EnergiApp
+     * @param idUsuario ID del usuario para guardar en historial
+     * @param mensaje Mensaje del usuario
+     * @return Respuesta del chatbot
+     * @throws SQLException Si hay error al guardar en historial
+     */
+    public String procesarMensajeChat(int idUsuario, String mensaje) throws SQLException {
+        String respuesta = chatController.procesarMensaje(mensaje);
+        guardarHistorialChat(idUsuario, mensaje, respuesta);
+        return respuesta;
+    }
+
+    /**
+     * Procesa un mensaje sin guardar en historial (solo consulta)
+     * @param mensaje Mensaje del usuario
+     * @return Respuesta del chatbot
+     */
+    public String consultarChat(String mensaje) {
+        return chatController.procesarMensaje(mensaje);
+    }
+
     // ----------------------------------------------------------------
     //  Getters
     // ----------------------------------------------------------------
 
-    public GestorPaneles   getGestorPaneles()  { return gestorPaneles; }
-    public Registro        getRegistro()       { return registro; }
-    public autentificacion getAutenticacion()  { return autenticacion; }
-    public ChatBoot        getChatBoot()       { return chatBoot; }
+    public GestorPaneles   getGestorPaneles()      { return gestorPaneles; }
+    public Registro        getRegistro()           { return registro; }
+    public autentificacion getAutenticacion()      { return autenticacion; }
+    public ChatController  getChatController()     { return chatController; }
 }
