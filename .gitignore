@@ -1,7 +1,5 @@
 /build/
 /nbproject/
 /target/
-target/ 
 .env
 *.env.local
- 
