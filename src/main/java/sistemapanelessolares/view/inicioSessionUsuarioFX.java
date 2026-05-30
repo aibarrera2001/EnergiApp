@@ -15,10 +15,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import sistemapanelessolares.dao.UsuarioDAO;
+import sistemapanelessolares.dao.CasaDAO;
+import sistemapanelessolares.dominio.Casa;
 import sistemapanelessolares.dominio.Usuario;
 import sistemapanelessolares.logica.SolarService;
 
 import java.sql.Connection;
+import java.util.List;
 
 public class inicioSessionUsuarioFX {
 
@@ -26,12 +29,12 @@ public class inicioSessionUsuarioFX {
     private final Connection conexionDB;
     private Usuario usuarioLogueado;
 
-    private static final String FONDO_OSCURO      = "#0D1B2A";
-    private static final String AZUL_PRIMARIO     = "#1565C0";
-    private static final String AZUL_HOVER        = "#1E88E5";
-    private static final String AZUL_CLARO        = "#90CAF9";
-    private static final String TEXTO_BLANCO      = "#E8F4FD";
-    private static final String TEXTO_GRIS        = "#B0BEC5";
+    private static final String FONDO_OSCURO  = "#0D1B2A";
+    private static final String AZUL_PRIMARIO = "#1565C0";
+    private static final String AZUL_HOVER    = "#1E88E5";
+    private static final String AZUL_CLARO    = "#90CAF9";
+    private static final String TEXTO_BLANCO  = "#E8F4FD";
+    private static final String TEXTO_GRIS    = "#B0BEC5";
 
     private static final String ESTILO_CAMPO =
             "-fx-background-color: rgba(21,101,192,0.15);"
@@ -84,6 +87,7 @@ public class inicioSessionUsuarioFX {
               + "-fx-border-radius: 24; -fx-border-width: 1.5;");
         tarjeta.setEffect(new DropShadow(40, 0, 12, Color.color(0, 0, 0, 0.7)));
 
+        // ── Cabecera ──────────────────────────────────────────────────
         VBox cabecera = new VBox(8);
         cabecera.setAlignment(Pos.CENTER);
         cabecera.setPadding(new Insets(36, 36, 24, 36));
@@ -95,7 +99,8 @@ public class inicioSessionUsuarioFX {
 
         javafx.scene.Node logoNode;
         InputStream logoIs = getClass().getResourceAsStream("/sistemapanelessolares/imagenes/logoEnergiapp.jpeg");
-        if (logoIs == null) logoIs = getClass().getClassLoader().getResourceAsStream("images/logoEnergiapp.jpeg");
+        if (logoIs == null)
+            logoIs = getClass().getClassLoader().getResourceAsStream("images/logoEnergiapp.jpeg");
         if (logoIs != null) {
             javafx.scene.image.Image img = new javafx.scene.image.Image(logoIs);
             javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
@@ -119,6 +124,7 @@ public class inicioSessionUsuarioFX {
         lblSub.setStyle("-fx-font-size: 12px; -fx-text-fill: " + TEXTO_GRIS + ";");
         cabecera.getChildren().addAll(logoNode, lblTitulo, lblSub);
 
+        // ── Cuerpo ────────────────────────────────────────────────────
         StackPane cuerpo = new StackPane();
         cuerpo.setPadding(new Insets(28, 36, 32, 36));
 
@@ -159,22 +165,39 @@ public class inicioSessionUsuarioFX {
         btnIngresar.setOnAction(e -> {
             String correo = txtCorreo.getText().trim();
             String pass   = txtPassword.getText();
+
             if (correo.isEmpty() || pass.isEmpty()) {
-                mostrarAlertaEstilizada("Campos Vacios", "Complete todos los campos.", Alert.AlertType.WARNING);
+                mostrarAlertaEstilizada("Campos Vacios",
+                        "Complete todos los campos.", Alert.AlertType.WARNING);
                 return;
             }
+
             if (conexionDB != null) {
                 UsuarioDAO dao = new UsuarioDAO();
                 Usuario autenticado = dao.buscarPorCorreo(correo);
+
                 if (autenticado != null && autenticado.getContrasena().equals(pass)) {
                     usuarioLogueado = autenticado;
-                    new DashboardusuarioFx(usuarioLogueado, solarServicio, conexionDB).mostrar(stagePrincipal);
+
+                    // ✅ Cargar casas del usuario desde Supabase
+                    System.out.println("ID usuario logueado: " + usuarioLogueado.getIdUsuario());
+                    CasaDAO casaDAO = new CasaDAO();
+                    List<Casa> casas = casaDAO.listarPorUsuario(usuarioLogueado.getIdUsuario());
+                    System.out.println("Casas encontradas: " + casas.size());
+                    for (Casa c : casas) {
+                        usuarioLogueado.agregarCasa(c);
+                    }
+
+                    new DashboardusuarioFx(usuarioLogueado, solarServicio, conexionDB)
+                            .mostrar(stagePrincipal);
                 } else {
-                    mostrarAlertaEstilizada("Acceso Denegado", "Correo o contrasena incorrectos.", Alert.AlertType.ERROR);
+                    mostrarAlertaEstilizada("Acceso Denegado",
+                            "Correo o contrasena incorrectos.", Alert.AlertType.ERROR);
                 }
             } else {
                 usuarioLogueado = new Usuario("Usuario", "Temporal", "000", correo, pass);
-                new DashboardusuarioFx(usuarioLogueado, solarServicio, conexionDB).mostrar(stagePrincipal);
+                new DashboardusuarioFx(usuarioLogueado, solarServicio, conexionDB)
+                        .mostrar(stagePrincipal);
             }
         });
 
@@ -211,11 +234,14 @@ public class inicioSessionUsuarioFX {
             String telefono = txtTelefono.getText().trim();
             String email    = txtEmail.getText().trim();
             String pass     = txtPassReg.getText();
+
             if (nombre.isEmpty() || email.isEmpty() || pass.isEmpty()) {
                 mostrarAlertaEstilizada("Campos Requeridos",
-                        "Nombre, correo y contrasena son obligatorios.", Alert.AlertType.WARNING);
+                        "Nombre, correo y contrasena son obligatorios.",
+                        Alert.AlertType.WARNING);
                 return;
             }
+
             if (conexionDB != null) {
                 try {
                     UsuarioDAO dao = new UsuarioDAO();
@@ -227,17 +253,21 @@ public class inicioSessionUsuarioFX {
                     txtNombre.clear(); txtApellido.clear(); txtTelefono.clear();
                     txtEmail.clear();  txtPassReg.clear();
                     btnTabLogin.setSelected(true);
-                    panelLogin.setVisible(true);    panelLogin.setManaged(true);
+                    panelLogin.setVisible(true);     panelLogin.setManaged(true);
                     panelRegistro.setVisible(false); panelRegistro.setManaged(false);
                     actualizarEstiloTab(btnTabLogin, btnTabRegistro);
                 } catch (Exception ex) {
-                    mostrarAlertaEstilizada("Error", "No se pudo registrar: " + ex.getMessage(), Alert.AlertType.ERROR);
+                    mostrarAlertaEstilizada("Error",
+                            "No se pudo registrar: " + ex.getMessage(),
+                            Alert.AlertType.ERROR);
                 }
             } else {
-                mostrarAlertaEstilizada("Sin Conexion", "No hay conexion a la base de datos.", Alert.AlertType.ERROR);
+                mostrarAlertaEstilizada("Sin Conexion",
+                        "No hay conexion a la base de datos.", Alert.AlertType.ERROR);
             }
         });
 
+        // ── Switch de tabs ────────────────────────────────────────────
         btnTabLogin.setOnAction(e -> {
             panelLogin.setVisible(true);     panelLogin.setManaged(true);
             panelRegistro.setVisible(false); panelRegistro.setManaged(false);
@@ -253,11 +283,15 @@ public class inicioSessionUsuarioFX {
         VBox contenidoTabs = new VBox(16, selectorTabs, panelLogin, panelRegistro);
         cuerpo.getChildren().add(contenidoTabs);
 
+        // ── Footer ────────────────────────────────────────────────────
         HBox footer = new HBox();
         footer.setAlignment(Pos.CENTER);
         footer.setPadding(new Insets(0, 36, 28, 36));
         Button btnVolver = new Button("Volver al Inicio");
         btnVolver.setStyle(BTN_VOLVER);
+        btnVolver.setOnMouseEntered(ev -> btnVolver.setStyle(
+                BTN_VOLVER + "-fx-background-color: rgba(144,202,249,0.15);"));
+        btnVolver.setOnMouseExited(ev -> btnVolver.setStyle(BTN_VOLVER));
         btnVolver.setOnAction(e -> {
             try { new IngresoFX().start(stagePrincipal); }
             catch (Exception ex) { ex.printStackTrace(); }
@@ -280,6 +314,8 @@ public class inicioSessionUsuarioFX {
         stagePrincipal.setMinHeight(650);
         stagePrincipal.show();
     }
+
+    // ── Helpers ───────────────────────────────────────────────────────
 
     private TextField crearCampoTexto(String prompt) {
         TextField tf = new TextField();
@@ -325,6 +361,8 @@ public class inicioSessionUsuarioFX {
     private void aplicarHoverPrimario(Button b) {
         b.setOnMouseEntered(e -> b.setStyle(BTN_PRIMARIO + "-fx-background-color: " + AZUL_HOVER + ";"));
         b.setOnMouseExited(e  -> b.setStyle(BTN_PRIMARIO));
+        b.setOnMousePressed(e -> b.setStyle(BTN_PRIMARIO + "-fx-scale-x: 0.98; -fx-scale-y: 0.98;"));
+        b.setOnMouseReleased(e-> b.setStyle(BTN_PRIMARIO));
     }
 
     private void aplicarHoverSecundario(Button b) {
