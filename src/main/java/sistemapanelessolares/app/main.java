@@ -2,7 +2,7 @@ package sistemapanelessolares.app;
 
 import java.sql.Connection;
 import javafx.application.Application;
-import sistemapanelessolares.bdd.conexionDB;
+import sistemapanelessolares.dao.ConexionDB;
 import sistemapanelessolares.view.IngresoFX;
 
 public class main {
@@ -10,7 +10,7 @@ public class main {
 
         System.out.println("Iniciando EnergiApp y conectando a Supabase...");
 
-        Connection conexion = conexionDB.conectar();
+        Connection conexion = ConexionDB.conectar();
 
         if (conexion != null) {
             System.out.println("Conexion exitosa a Supabase!");

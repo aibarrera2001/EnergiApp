@@ -2,14 +2,13 @@ package sistemapanelessolares.logica;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
+import sistemapanelessolares.dao.UsuarioDAO;
+import sistemapanelessolares.dao.PanelSolarDAO;
 import sistemapanelessolares.dominio.Casa;
 import sistemapanelessolares.dominio.PanelSolar;
 import sistemapanelessolares.dominio.Usuario;
-import sistemapanelessolares.bdd.HistorialChat;
-import sistemapanelessolares.bdd.panelSolarDAO;
 import sistemapanelessolares.view.Registro;
 
 public class SolarService {
@@ -18,85 +17,62 @@ public class SolarService {
     private final Registro registro;
     private final autentificacion autenticacion;
     private final ChatController chatController;
-    private final HistorialChat historialRepo;
 
-    // ----------------------------------------------------------------
-    //  Constructor sin BD — catálogo en memoria con paneles por defecto
-    // ----------------------------------------------------------------
-
+    // ── Constructor sin BD ────────────────────────────────────────────
     public SolarService() {
         this.gestorPaneles = new GestorPaneles();
         cargarPanelesSemilla(this.gestorPaneles);
-        
         this.registro      = new Registro(null);
         this.autenticacion = new autentificacion(null);
-        this.historialRepo = new HistorialChat();
-        // Inicializar ChatController DESPUÉS de que gestorPaneles esté listo
         this.chatController = new ChatController(this);
     }
 
-    // ----------------------------------------------------------------
-    //  Constructor con BD — catálogo cargado desde panel_solar
-    // ----------------------------------------------------------------
-
+    // ── Constructor con BD ────────────────────────────────────────────
     public SolarService(Connection conexionDB) {
         this.registro      = new Registro(conexionDB);
         this.autenticacion = new autentificacion(conexionDB);
-        this.historialRepo = new HistorialChat();
 
         GestorPaneles gp = new GestorPaneles();
         try {
-            panelSolarDAO repo = new panelSolarDAO();
+            PanelSolarDAO repo = new PanelSolarDAO();
             List<PanelSolar> panelesBD = repo.listarTodos();
             if (panelesBD != null && !panelesBD.isEmpty()) {
                 gp = new GestorPaneles(panelesBD);
             } else {
                 cargarPanelesSemilla(gp);
             }
-        } catch (SQLException e) {
-            // Manejo silencioso: si cae la BD, respaldamos con la semilla en memoria
+        } catch (Exception e) {
             cargarPanelesSemilla(gp);
         }
-        this.gestorPaneles = gp;
-        
-        // Inicializar ChatController con acceso a esta instancia de SolarService
+        this.gestorPaneles  = gp;
         this.chatController = new ChatController(this);
     }
 
-    // ----------------------------------------------------------------
-    //  Lógica de Catálogo
-    // ----------------------------------------------------------------
-
+    // ── Catálogo ──────────────────────────────────────────────────────
     public List<PanelSolar> obtenerPanelesParaCatalogo() {
         return gestorPaneles.listarPorPrecioAscendente();
     }
 
-    public PanelSolar buscarPanelPorId(int idSeleccionado) {
-        return gestorPaneles.buscarPorId(idSeleccionado).orElse(null);
+    public PanelSolar buscarPanelPorId(int id) {
+        return gestorPaneles.buscarPorId(id).orElse(null);
     }
 
     private void cargarPanelesSemilla(GestorPaneles gp) {
         try {
-            gp.agregarPanel(new PanelSolar(0, "SunPower Maxeon 3", "Monocristalino", 400, 22.6, 350.00, 80.00, "25", "Panel premium alta eficiencia"));
-            gp.agregarPanel(new PanelSolar(0, "Canadian Solar HiKu", "Policristalino", 370, 18.9, 210.00, 60.00, "10", "Relación costo-beneficio óptima"));
-            gp.agregarPanel(new PanelSolar(0, "First Solar Series 6", "Thin-Film", 420, 19.0, 275.00, 70.00, "10", "Ideal para grandes superficies planas"));
-            gp.agregarPanel(new PanelSolar(0, "LONGi Hi-MO 5", "PERC", 500, 21.3, 290.00, 65.00, "12", "Alta potencia por módulo"));
-            gp.agregarPanel(new PanelSolar(0, "Trina Vertex S+", "Bifacial", 445, 21.8, 320.00, 75.00, "15", "Captación por ambas caras del panel"));
-        } catch (IllegalArgumentException e) {
-            // Manejo interno por si los datos semilla no pasan tus validadores estricto de paneles
-        }
+            gp.agregarPanel(new PanelSolar(0, "SunPower Maxeon 3",    "Monocristalino", 400, 22.6, 350.00, 80.00, "25", "Panel premium alta eficiencia"));
+            gp.agregarPanel(new PanelSolar(0, "Canadian Solar HiKu",  "Policristalino", 370, 18.9, 210.00, 60.00, "10", "Relacion costo-beneficio optima"));
+            gp.agregarPanel(new PanelSolar(0, "First Solar Series 6", "Thin-Film",      420, 19.0, 275.00, 70.00, "10", "Ideal para grandes superficies"));
+            gp.agregarPanel(new PanelSolar(0, "LONGi Hi-MO 5",        "PERC",           500, 21.3, 290.00, 65.00, "12", "Alta potencia por modulo"));
+            gp.agregarPanel(new PanelSolar(0, "Trina Vertex S+",      "Bifacial",       445, 21.8, 320.00, 75.00, "15", "Captacion por ambas caras"));
+        } catch (IllegalArgumentException ignored) {}
     }
 
-    // ----------------------------------------------------------------
-    //  Resúmenes solares
-    // ----------------------------------------------------------------
-
+    // ── Resúmenes solares ─────────────────────────────────────────────
     public String generarResumenSolar(Usuario usuario, int indiceCasa) {
         if (usuario.getPanelSeleccionado() == null)
-            return "Error: el usuario no tiene un panel solar seleccionado.";
+            return "Error: no hay panel seleccionado.";
         if (usuario.getCasas().isEmpty() || indiceCasa >= usuario.getCasas().size())
-            return "Error: no existe una casa en el índice " + indiceCasa + ".";
-
+            return "Error: casa no encontrada en indice " + indiceCasa;
         Casa casa = usuario.getCasas().get(indiceCasa);
         double costoInst = usuario.getPanelSeleccionado().getCostoInstalacion();
         return new CalculadoraPanels(casa, usuario.getPanelSeleccionado(), costoInst).generarResumen();
@@ -104,24 +80,18 @@ public class SolarService {
 
     public String generarResumenTodasLasCasas(Usuario usuario) {
         if (usuario.getPanelSeleccionado() == null)
-            return "Error: el usuario no tiene un panel solar seleccionado.";
+            return "Error: no hay panel seleccionado.";
         if (usuario.getCasas().isEmpty())
             return "El usuario no tiene casas registradas.";
-
         double costoInst = usuario.getPanelSeleccionado().getCostoInstalacion();
-
         StringBuilder sb = new StringBuilder();
-        sb.append("=== Resúmenes solares de ")
-          .append(usuario.getNombre()).append(" ").append(usuario.getApellido())
-          .append(" ===\n\n");
-
+        sb.append("=== Resumenes de ").append(usuario.getNombre())
+          .append(" ").append(usuario.getApellido()).append(" ===\n\n");
         for (int i = 0; i < usuario.getCasas().size(); i++) {
             sb.append(">>> Casa ").append(i + 1).append(":\n");
             sb.append(new CalculadoraPanels(
                     usuario.getCasas().get(i),
-                    usuario.getPanelSeleccionado(),
-                    costoInst
-            ).generarResumen()).append("\n\n");
+                    usuario.getPanelSeleccionado(), costoInst).generarResumen()).append("\n\n");
         }
         return sb.toString();
     }
@@ -136,46 +106,18 @@ public class SolarService {
         return total;
     }
 
-    // ----------------------------------------------------------------
-    //  Historial de chat AI
-    // ----------------------------------------------------------------
-
-    public void guardarHistorialChat(int idUsuario, String pregunta, String respuesta) throws SQLException {
-        historialRepo.guardar(idUsuario, pregunta, respuesta);
-    }
-
-    public List<String[]> obtenerHistorialChat(int idUsuario) throws SQLException {
-        return historialRepo.listarPorUsuario(idUsuario);
-    }
-
-    /**
-     * Procesa un mensaje del usuario a través del chatbot contextualizado de EnergiApp
-     * @param idUsuario ID del usuario para guardar en historial
-     * @param mensaje Mensaje del usuario
-     * @return Respuesta del chatbot
-     * @throws SQLException Si hay error al guardar en historial
-     */
-    public String procesarMensajeChat(int idUsuario, String mensaje) throws SQLException {
-        String respuesta = chatController.procesarMensaje(mensaje);
-        guardarHistorialChat(idUsuario, mensaje, respuesta);
-        return respuesta;
-    }
-
-    /**
-     * Procesa un mensaje sin guardar en historial (solo consulta)
-     * @param mensaje Mensaje del usuario
-     * @return Respuesta del chatbot
-     */
+    // ── Chat ──────────────────────────────────────────────────────────
     public String consultarChat(String mensaje) {
         return chatController.procesarMensaje(mensaje);
     }
 
-    // ----------------------------------------------------------------
-    //  Getters
-    // ----------------------------------------------------------------
+    public String procesarMensajeChat(int idUsuario, String mensaje) throws SQLException {
+        return chatController.procesarMensaje(mensaje);
+    }
 
-    public GestorPaneles   getGestorPaneles()      { return gestorPaneles; }
-    public Registro        getRegistro()           { return registro; }
-    public autentificacion getAutenticacion()      { return autenticacion; }
-    public ChatController  getChatController()     { return chatController; }
+    // ── Getters ───────────────────────────────────────────────────────
+    public GestorPaneles   getGestorPaneles()  { return gestorPaneles; }
+    public Registro        getRegistro()       { return registro; }
+    public autentificacion getAutenticacion()  { return autenticacion; }
+    public ChatController  getChatController() { return chatController; }
 }
