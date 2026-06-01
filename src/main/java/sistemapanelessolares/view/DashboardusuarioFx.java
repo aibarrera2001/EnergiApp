@@ -86,7 +86,7 @@ public class DashboardusuarioFx {
         topBar.setEffect(sombra);
 
         javafx.scene.Node logoNode;
-        InputStream logoIs = getClass().getResourceAsStream("/sistemapanelessolares/imagenes/logoEnergiapp.jpeg");
+        InputStream logoIs = getClass().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
         if (logoIs == null) logoIs = getClass().getResourceAsStream("/images/logoEnergiapp.jpeg");
         if (logoIs != null) {
             ImageView iv = new ImageView(new Image(logoIs));

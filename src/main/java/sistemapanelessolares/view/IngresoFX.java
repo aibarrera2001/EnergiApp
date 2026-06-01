@@ -104,10 +104,10 @@ public class IngresoFX extends Application {
         javafx.scene.Node logoNode;
 
         InputStream logoIs = getClass().getResourceAsStream(
-                "/sistemapanelessolares/imagenes/logo energiapp2.jpeg");
+                "/sistemapanelessolares/resources/logo.jpeg");
 
         if (logoIs == null) {
-            logoIs = getClass().getClassLoader().getResourceAsStream("images/logo energiapp2.jpeg");
+            logoIs = getClass().getClassLoader().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
         }
 
         if (logoIs != null) {

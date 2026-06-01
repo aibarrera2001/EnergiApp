@@ -10,7 +10,7 @@ import javafx.scene.chart.Chart;
 import sistemapanelessolares.dominio.Usuario;
 import sistemapanelessolares.logica.GraficasService;
 import sistemapanelessolares.logica.SolarService;
-import javafx.print.PrinterJob;
+
 import javafx.scene.Node;
 
 public class PestanaGraficasFX {

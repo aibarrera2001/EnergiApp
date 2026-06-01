@@ -99,9 +99,9 @@ public class InicioSessionAdministrativoFX {
         // Logo
         javafx.scene.Node logoNode;
         InputStream logoIs = getClass().getResourceAsStream(
-                "/sistemapanelessolares/imagenes/logoEnergiapp.jpeg");
+                "/sistemapanelessolares/resources/logo.jpeg");
         if (logoIs == null)
-            logoIs = getClass().getClassLoader().getResourceAsStream("images/logoEnergiapp.jpeg");
+            logoIs = getClass().getClassLoader().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
 
         if (logoIs != null) {
             ImageView iv = new ImageView(new Image(logoIs));
@@ -143,7 +143,7 @@ public class InicioSessionAdministrativoFX {
         VBox cuerpo = new VBox(14);
         cuerpo.setPadding(new Insets(28, 36, 8, 36));
 
-        TextField     txtCorreo   = crearCampoTexto("✉  admin@energiapp.cor.co");
+        TextField     txtCorreo   = crearCampoTexto("✉  @energiapp.cor.co");
         PasswordField txtPassword = crearCampoPass("🔒  Contraseña");
 
         Button btnIngresar = new Button("Autenticar Administrador");

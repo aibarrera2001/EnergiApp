@@ -98,9 +98,9 @@ public class inicioSessionUsuarioFX {
               + "-fx-border-width: 0 0 1 0;");
 
         javafx.scene.Node logoNode;
-        InputStream logoIs = getClass().getResourceAsStream("/sistemapanelessolares/imagenes/logoEnergiapp.jpeg");
+        InputStream logoIs = getClass().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
         if (logoIs == null)
-            logoIs = getClass().getClassLoader().getResourceAsStream("images/logoEnergiapp.jpeg");
+            logoIs = getClass().getClassLoader().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
         if (logoIs != null) {
             javafx.scene.image.Image img = new javafx.scene.image.Image(logoIs);
             javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
