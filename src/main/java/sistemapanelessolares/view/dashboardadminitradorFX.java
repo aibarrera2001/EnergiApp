@@ -230,39 +230,53 @@ public class dashboardadminitradorFX {
         btnCerrarSesion.setStyle(BTN_SALIR);
         aplicarHoverPeligro(btnCerrarSesion);
 
-        btnGuardar.setOnAction(e -> {
-            try {
-                String nombre      = txtNombrePanel.getText().trim();
-                String tipo        = txtTipo.getText().trim();
-                String garantia    = txtGarantia.getText().trim();
-                String descripcion = txtDescripcion.getText().trim();
+      btnGuardar.setOnAction(e -> {
+    try {
+        String nombre      = txtNombrePanel.getText().trim();
+        String tipo        = txtTipo.getText().trim();
+        String garantia    = txtGarantia.getText().trim();
+        String descripcion = txtDescripcion.getText().trim();
 
-                if (nombre.isEmpty() || tipo.isEmpty() || garantia.isEmpty()) {
-                    mostrarAlertaEstilizada("Campos Vacíos",
-                            "Complete todos los campos obligatorios.", Alert.AlertType.WARNING);
-                    return;
-                }
+        if (nombre.isEmpty() || tipo.isEmpty() || garantia.isEmpty()
+                || txtPotencia.getText().trim().isEmpty()
+                || txtEficiencia.getText().trim().isEmpty()
+                || txtCostoUnidad.getText().trim().isEmpty()
+                || txtCostoInstalacion.getText().trim().isEmpty()) {
+            mostrarAlertaEstilizada("Campos Vacíos",
+                    "Complete todos los campos obligatorios.", Alert.AlertType.WARNING);
+            return;
+        }
 
-                double potencia          = Double.parseDouble(txtPotencia.getText());
-                double eficiencia        = Double.parseDouble(txtEficiencia.getText());
-                double costoUnidad       = Double.parseDouble(txtCostoUnidad.getText());
-                double costoInstalacion  = Double.parseDouble(txtCostoInstalacion.getText());
+        double potencia         = Double.parseDouble(txtPotencia.getText().trim());
+        double eficiencia       = Double.parseDouble(txtEficiencia.getText().trim());
+        double costoUnidad      = Double.parseDouble(txtCostoUnidad.getText().trim());
+        double costoInstalacion = Double.parseDouble(txtCostoInstalacion.getText().trim());
 
-                new PanelSolar(nombre, tipo, potencia, eficiencia,
-                               costoUnidad, costoInstalacion, garantia, descripcion);
+        PanelSolar panel = new PanelSolar(nombre, tipo, potencia, eficiencia,
+                                          costoUnidad, costoInstalacion, garantia, descripcion);
 
-                mostrarAlertaEstilizada("Panel Registrado",
-                        "El modelo fue agregado al catálogo correctamente.", Alert.AlertType.INFORMATION);
-                limpiarCampos();
-                actualizarListaPaneles();
-                lblTotalBadge.setText(listViewPaneles.getItems().size() + " modelos");
+        //  Guardar en Supabase panel solar
+        sistemapanelessolares.dao.PanelSolarDAO dao = new sistemapanelessolares.dao.PanelSolarDAO();
+        dao.guardar(panel);
 
-            } catch (NumberFormatException ex) {
-                mostrarAlertaEstilizada("Formato Incorrecto",
-                        "Ingrese valores numéricos válidos en los campos correspondientes.",
-                        Alert.AlertType.ERROR);
-            }
-        });
+        // Agregar al catálogo en memoria
+        solarServicio.getGestorPaneles().agregarPanel(panel);
+
+        mostrarAlertaEstilizada("Panel Registrado",
+                "El modelo fue agregado al catálogo y guardado en Supabase.",
+                Alert.AlertType.INFORMATION);
+        limpiarCampos();
+        actualizarListaPaneles();
+        lblTotalBadge.setText(listViewPaneles.getItems().size() + " modelos");
+
+    } catch (NumberFormatException ex) {
+        mostrarAlertaEstilizada("Formato Incorrecto",
+                "Ingrese solo números en Potencia, Eficiencia, Costo Unidad y Costo Instalación.",
+                Alert.AlertType.ERROR);
+    } catch (Exception ex) {
+        mostrarAlertaEstilizada("Error", ex.getMessage(), Alert.AlertType.ERROR);
+    }
+});
 
         btnCerrarSesion.setOnAction(e ->
                 new InicioSessionAdministrativoFX(solarServicio, conexionDB)

@@ -11,10 +11,7 @@ public class CasaDAO {
         String sql = "INSERT INTO casas (direccion, ciudad, consumo_mensual, latitud, longitud, id_usuario) "
                    + "VALUES (?, ?, ?, ?, ?, ?) RETURNING id_casa";
         Connection conn = ConexionDB.conectar();
-        if (conn == null) {
-            System.err.println("ERROR: No hay conexion a Supabase");
-            return;
-        }
+        if (conn == null) { System.err.println("ERROR: Sin conexion"); return; }
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, casa.getDireccion());
             ps.setString(2, casa.getCiudad());
@@ -23,10 +20,12 @@ public class CasaDAO {
             ps.setDouble(5, casa.getLongitud());
             ps.setInt(6, idUsuario);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) System.out.println("Casa guardada con ID: " + rs.getInt("id_casa"));
+            if (rs.next()) {
+                casa.setIdCasa(rs.getInt("id_casa"));
+                System.out.println("Casa guardada con ID: " + casa.getIdCasa());
+            }
         } catch (Exception e) {
-            System.err.println("Error al guardar casa: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error guardar casa: " + e.getMessage());
         }
     }
 
@@ -58,6 +57,7 @@ public class CasaDAO {
 
     private Casa mapear(ResultSet rs) throws SQLException {
         return new Casa(
+            rs.getInt("id_casa"),
             rs.getString("direccion"),
             rs.getString("ciudad"),
             rs.getDouble("consumo_mensual"),

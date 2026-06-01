@@ -2,57 +2,53 @@ package sistemapanelessolares.dominio;
 
 public class Casa {
 
+    private int    idCasa;
     private String direccion;
     private String ciudad;
     private double consumoMensualKWh;
     private double latitud;
     private double longitud;
 
-    public Casa(String direccion, String ciudad, double consumoMensualKWh, double latitud, double longitud) {
-        this.direccion = direccion;
-        this.ciudad = ciudad;
+    // Constructor sin ID (para casas nuevas)
+    public Casa(String direccion, String ciudad, double consumoMensualKWh,
+                double latitud, double longitud) {
+        this.direccion        = direccion;
+        this.ciudad           = ciudad;
         this.consumoMensualKWh = consumoMensualKWh;
-        this.latitud = latitud;
-        this.longitud = longitud;
-    }
-    
-    public String getDireccion() {
-        return direccion;
+        this.latitud          = latitud;
+        this.longitud         = longitud;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getCiudad() {
-        return ciudad;
-    }
-
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
-    }
-
-    public double getConsumoDiarioKWh() {
-        int diasMes = 30;
-        return consumoMensualKWh / diasMes;
-    }
-    public double getConsumoMensualKWh() {
-        return consumoMensualKWh;
-    }
-    public void setConsumoMensualKWh(double consumoMensualKWh) {
+    // Constructor con ID (cargadas desde BD)
+    public Casa(int idCasa, String direccion, String ciudad, double consumoMensualKWh,
+                double latitud, double longitud) {
+        this.idCasa           = idCasa;
+        this.direccion        = direccion;
+        this.ciudad           = ciudad;
         this.consumoMensualKWh = consumoMensualKWh;
+        this.latitud          = latitud;
+        this.longitud         = longitud;
     }
 
-    public double getLatitud() {
-        return latitud;
-    }
+    public int    getIdCasa()                      { return idCasa; }
+    public void   setIdCasa(int idCasa)            { this.idCasa = idCasa; }
 
-    public double getLongitud() {
-        return longitud;
-    }
+    public String getDireccion()                   { return direccion; }
+    public void   setDireccion(String d)           { this.direccion = d; }
+
+    public String getCiudad()                      { return ciudad; }
+    public void   setCiudad(String c)              { this.ciudad = c; }
+
+    public double getConsumoDiarioKWh()            { return consumoMensualKWh / 30; }
+    public double getConsumoMensualKWh()           { return consumoMensualKWh; }
+    public void   setConsumoMensualKWh(double v)   { this.consumoMensualKWh = v; }
+
+    public double getLatitud()                     { return latitud; }
+    public double getLongitud()                    { return longitud; }
 
     @Override
     public String toString() {
-        return "Casa en " + ciudad + " - " + direccion + ", consumo mensual: " + consumoMensualKWh + " kWh";
+        return "Casa en " + ciudad + " - " + direccion
+                + ", consumo mensual: " + consumoMensualKWh + " kWh";
     }
 }

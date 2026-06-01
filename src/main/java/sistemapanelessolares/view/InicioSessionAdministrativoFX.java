@@ -162,7 +162,7 @@ public class InicioSessionAdministrativoFX {
             }
 
             if (conexionDB != null) {
-                String sql = "SELECT nombre, rol FROM administrador WHERE correo = ? AND contraseña = ?";
+                String sql = "SELECT nombre, rol FROM administrativos WHERE correo = ? AND contrasena = ?";
                 try (PreparedStatement ps = conexionDB.prepareStatement(sql)) {
                     ps.setString(1, correo);
                     ps.setString(2, pass);
