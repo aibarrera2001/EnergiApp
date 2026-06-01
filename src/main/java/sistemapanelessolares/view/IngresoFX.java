@@ -12,255 +12,209 @@ import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
 import sistemapanelessolares.logica.SolarService;
 
 public class IngresoFX extends Application {
 
     private static Connection conexionDBStatic = null;
-
     private Connection conexionDB;
     private SolarService solarServicio;
 
+    // ── PALETA NUEVA ──────────────────────────────────────────────────
+    private static final String C_PRIMARY    = "#0D5BD7";
+    private static final String C_PRIMARY_D  = "#0A47B0";
+    private static final String C_BG         = "#F5F7FA";
+    private static final String C_SURFACE    = "#FFFFFF";
+    private static final String C_TEXT       = "#1F2937";
+    private static final String C_TEXT_S     = "#6B7280";
+    private static final String C_SUCCESS    = "#16A34A";
+    private static final String C_BORDER     = "#E5E7EB";
+    private static final String C_SECONDARY  = "#4B5563";
+
     public IngresoFX() {
-        this.conexionDB = conexionDBStatic;
+        this.conexionDB    = conexionDBStatic;
         this.solarServicio = new SolarService(this.conexionDB);
     }
 
-    public static void setConexionDB(Connection con) {
-        conexionDBStatic = con;
-    }
+    public static void setConexionDB(Connection con) { conexionDBStatic = con; }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-
-        primaryStage.setTitle("EnergiApp — Sistema de Gestión Solar");
-
-        String tarjetaIzquierda = "-fx-background-color: rgba(21, 101, 192, 0.22);"
-                                + "-fx-background-radius: 24;"
-                                + "-fx-border-color: rgba(144, 202, 249, 0.35);"
-                                + "-fx-border-radius: 24;"
-                                + "-fx-border-width: 1.5;"
-                                + "-fx-padding: 40;";
-
-        String tarjetaDerecha   = "-fx-background-color: rgba(27, 42, 59, 0.85);"
-                                + "-fx-background-radius: 24;"
-                                + "-fx-border-color: rgba(30, 58, 95, 0.5);"
-                                + "-fx-border-radius: 24;"
-                                + "-fx-border-width: 1;"
-                                + "-fx-padding: 40;";
-
-        String botonPrincipal   = "-fx-background-color: #1565C0; -fx-text-fill: white;"
-                                + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 12;"
-                                + "-fx-cursor: hand;";
-
-        String botonSecundario  = "-fx-background-color: transparent; -fx-text-fill: #0288D1;"
-                                + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-border-color: #0288D1;"
-                                + "-fx-border-radius: 12; -fx-border-width: 1.5; -fx-background-radius: 12;"
-                                + "-fx-cursor: hand;";
-
-        String botonSalir       = "-fx-background-color: #1B2A3B; -fx-text-fill: #90CAF9;"
-                                + "-fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 10;"
-                                + "-fx-border-color: rgba(30, 58, 95, 0.8); -fx-border-radius: 10;"
-                                + "-fx-cursor: hand;";
-
-        String txtBlanco        = "-fx-text-fill: #E8F4FD;";
-        String txtSub           = "-fx-text-fill: #B0BEC5;";
-        String txtCianNeon      = "-fx-text-fill: #90CAF9;";
-
-        DropShadow glowAzul  = new DropShadow(20, Color.web("#1565C0"));
-        DropShadow sombraCard = new DropShadow(25, 0, 10, Color.color(0, 0, 0, 0.55));
+    public void start(Stage stage) throws Exception {
+        stage.setTitle("EnergiApp — Sistema de Gestión Solar");
 
         // ── FONDO ─────────────────────────────────────────────────────
-        StackPane fondoPane = new StackPane();
-        Rectangle gradBg = new Rectangle();
-        gradBg.setFill(new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#0D1B2A")), new Stop(1, Color.web("#0A1628"))));
-        gradBg.widthProperty().bind(fondoPane.widthProperty());
-        gradBg.heightProperty().bind(fondoPane.heightProperty());
-        fondoPane.getChildren().add(gradBg);
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: " + C_BG + ";");
 
-        // ── PANEL IZQUIERDO ──────────────────────────────────────────
-        VBox panelIzquierdo = new VBox(30);
-        panelIzquierdo.setStyle(tarjetaIzquierda);
-        panelIzquierdo.setPrefWidth(400);
-        // *** CLAVE: centrar todo el contenido del panel izquierdo ***
-        panelIzquierdo.setAlignment(Pos.TOP_CENTER);
-        panelIzquierdo.setEffect(sombraCard);
+        // ── LAYOUT PRINCIPAL ──────────────────────────────────────────
+        HBox mainLayout = new HBox(0);
+        mainLayout.setMaxWidth(1100);
+        mainLayout.setMaxHeight(700);
+        mainLayout.setEffect(new DropShadow(40, 0, 10, Color.color(0,0,0,0.15)));
 
-        // ── CARGA Y CENTRADO DEL LOGO ────────────────────────────────
+        // ── PANEL IZQUIERDO ───────────────────────────────────────────
+        VBox left = new VBox(0);
+        left.setPrefWidth(420);
+        left.setStyle("-fx-background-color: " + C_PRIMARY + "; -fx-background-radius: 18 0 0 18;");
+        left.setAlignment(Pos.CENTER);
+        left.setPadding(new Insets(50, 40, 40, 40));
+
+        // Logo
         javafx.scene.Node logoNode;
-
-        InputStream logoIs = getClass().getResourceAsStream(
-                "/sistemapanelessolares/resources/logo.jpeg");
-
-        if (logoIs == null) {
-            logoIs = getClass().getClassLoader().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
-        }
-
+        InputStream logoIs = getClass().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
+        if (logoIs == null) logoIs = getClass().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
         if (logoIs != null) {
             Image img = new Image(logoIs);
             ImageView iv = new ImageView(img);
-            iv.setFitWidth(200);
-            iv.setFitHeight(200);
-            iv.setPreserveRatio(true);
-            iv.setSmooth(true);
-
-            // Recorte circular para eliminar el fondo blanco visualmente
-            Circle clip = new Circle(100, 100, 100);
+            iv.setFitWidth(130); iv.setFitHeight(130); iv.setPreserveRatio(true);
+            Circle clip = new Circle(65, 65, 65);
             iv.setClip(clip);
-
-            // Glow suave verde/azul acorde al logo
-            DropShadow logoGlow = new DropShadow(22, Color.web("#4CAF50"));
-            logoGlow.setSpread(0.08);
-            iv.setEffect(logoGlow);
-
-            // Contenedor centrado horizontalmente
-            HBox contenedorLogo = new HBox(iv);
-            contenedorLogo.setAlignment(Pos.CENTER);
-            logoNode = contenedorLogo;
-
+            DropShadow glow = new DropShadow(20, Color.color(0,0,0,0.3));
+            iv.setEffect(glow);
+            HBox logoBox = new HBox(iv); logoBox.setAlignment(Pos.CENTER);
+            logoNode = logoBox;
         } else {
-            System.err.println("[EnergiApp] Logo no encontrado. Usando texto de reemplazo.");
-            Label lblLogoFallback = new Label("⚡ EnergiApp");
-            lblLogoFallback.setStyle("-fx-font-size: 26px; -fx-font-weight: bold;" + txtBlanco);
-            logoNode = lblLogoFallback;
+            Label fb = new Label("⚡"); fb.setStyle("-fx-font-size: 64px;");
+            logoNode = fb;
         }
 
-        Label lblTitulo = new Label("EnergiApp");
-        lblTitulo.setStyle("-fx-font-size: 30px; -fx-font-weight: 900; -fx-line-spacing: -2px;"
-                         + "-fx-text-alignment: center;" + txtBlanco);
-        lblTitulo.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        lblTitulo.setEffect(new DropShadow(10, Color.web("#90CAF9")));
+        Label lblApp = new Label("EnergiApp");
+        lblApp.setStyle("-fx-font-size: 34px; -fx-font-weight: 900; -fx-text-fill: white;");
+        lblApp.setPadding(new Insets(18, 0, 6, 0));
 
-        Label lblDesc = new Label("Optimiza la captación y el análisis proyectivo de tu consumo de energía solar a través de inteligencia predictiva.");
-        lblDesc.setWrapText(true);
-        lblDesc.setStyle("-fx-font-size: 13px; -fx-line-spacing: 3px; -fx-text-alignment: center;" + txtSub);
-        lblDesc.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        lblDesc.setMaxWidth(300);
+        Label lblSlogan = new Label("Potencia tu futuro con energía solar inteligente");
+        lblSlogan.setStyle("-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.85);"
+                + "-fx-text-alignment: center; -fx-wrap-text: true;");
+        lblSlogan.setWrapText(true);
+        lblSlogan.setMaxWidth(300);
+        lblSlogan.setAlignment(Pos.CENTER);
 
-        Region spacerIzquierdo = new Region();
-        VBox.setVgrow(spacerIzquierdo, Priority.ALWAYS);
+        // Separador
+        Region sep = new Region();
+        sep.setPrefHeight(1); sep.setMaxWidth(200);
+        sep.setStyle("-fx-background-color: rgba(255,255,255,0.3);");
+        sep.setPadding(new Insets(16, 0, 16, 0));
+        VBox.setMargin(sep, new Insets(20, 0, 20, 0));
 
-        Label lblFooterVersion = new Label("System Core v2.6 // Active");
-        lblFooterVersion.setStyle("-fx-font-size: 10px; -fx-font-family: 'Courier New';" + txtCianNeon);
+        // Features
+        VBox features = new VBox(12);
+        features.setAlignment(Pos.CENTER_LEFT);
+        features.setMaxWidth(280);
+        String[] feats = {
+            "✓  Cálculo automático de paneles solares",
+            "✓  Conexión a base de datos en la nube",
+            "✓  Asistente IA integrado",
+            "✓  Análisis financiero y retorno de inversión"
+        };
+        for (String f : feats) {
+            Label lf = new Label(f);
+            lf.setStyle("-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.90);");
+            features.getChildren().add(lf);
+        }
 
-        panelIzquierdo.getChildren().addAll(
-                logoNode,
-                lblTitulo,
-                lblDesc,
-                spacerIzquierdo,
-                lblFooterVersion
-        );
+        Region spacerL = new Region(); VBox.setVgrow(spacerL, Priority.ALWAYS);
+
+        Label lblVersion = new Label("v2.6  •  Universidad Popular Del Cesar  •  2026");
+        lblVersion.setStyle("-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.55);");
+
+        left.getChildren().addAll(logoNode, lblApp, lblSlogan, sep, features, spacerL, lblVersion);
 
         // ── PANEL DERECHO ─────────────────────────────────────────────
-        VBox panelDerecho = new VBox(26);
-        panelDerecho.setStyle(tarjetaDerecha);
-        panelDerecho.setAlignment(Pos.CENTER);
-        panelDerecho.setEffect(sombraCard);
-        HBox.setHgrow(panelDerecho, Priority.ALWAYS);
+        VBox right = new VBox(0);
+        right.setStyle("-fx-background-color: " + C_SURFACE + "; -fx-background-radius: 0 18 18 0;");
+        right.setAlignment(Pos.CENTER);
+        right.setPadding(new Insets(50, 50, 40, 50));
+        HBox.setHgrow(right, Priority.ALWAYS);
 
-        Label lblIngreso = new Label("Selecciona tu rol de acceso");
-        lblIngreso.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;" + txtBlanco);
+        Label lblBienvenido = new Label("Bienvenido");
+        lblBienvenido.setStyle("-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: " + C_TEXT + ";");
 
-        Label lblSubIngreso = new Label("Inicia sesión para interactuar con la red de paneles solares.");
-        lblSubIngreso.setStyle("-fx-font-size: 13px;" + txtSub);
-        lblSubIngreso.setPadding(new Insets(-15, 0, 10, 0));
+        Label lblSub = new Label("Selecciona tu tipo de acceso para continuar");
+        lblSub.setStyle("-fx-font-size: 14px; -fx-text-fill: " + C_TEXT_S + ";");
+        lblSub.setPadding(new Insets(4, 0, 32, 0));
 
-        Button btnUsuario = new Button("Ingresar como Usuario");
-        btnUsuario.setStyle(botonPrincipal);
-        btnUsuario.setPrefWidth(340);
-        btnUsuario.setPrefHeight(52);
-        configurarAnimacionBoton(btnUsuario, botonPrincipal, "#1565C0", true, glowAzul);
-
-        btnUsuario.setOnAction(e -> {
-            inicioSessionUsuarioFX vistaUsuario = new inicioSessionUsuarioFX(solarServicio, conexionDB);
-            vistaUsuario.mostrarVentanaAcceso(primaryStage);
-        });
-
-        Button btnAdmin = new Button("Acceso Administrador");
-        btnAdmin.setStyle(botonSecundario);
-        btnAdmin.setPrefWidth(340);
-        btnAdmin.setPrefHeight(52);
-        configurarAnimacionBoton(btnAdmin, botonSecundario, "#0288D1", false, glowAzul);
-
-        btnAdmin.setOnAction(e -> {
-            InicioSessionAdministrativoFX vistaAdmin = new InicioSessionAdministrativoFX(solarServicio, conexionDB);
-            vistaAdmin.mostrarVentanaAcceso(primaryStage);
-        });
-
-        Region divider = new Region();
-        divider.setPrefHeight(2);
-        divider.setStyle("-fx-background-color: rgba(30, 58, 95, 0.4);");
-        divider.setMaxWidth(200);
-
-        Button btnSalir = new Button("🚪 Cerrar Aplicación");
-        btnSalir.setStyle(botonSalir);
-        btnSalir.setPrefWidth(200);
-        btnSalir.setPrefHeight(42);
-        btnSalir.setOnMouseEntered(e -> btnSalir.setStyle(botonSalir + "-fx-background-color: #A5D6A7; -fx-text-fill: #0D1B2A;"));
-        btnSalir.setOnMouseExited(e -> btnSalir.setStyle(botonSalir));
-        btnSalir.setOnAction(e -> primaryStage.close());
-
-        panelDerecho.getChildren().addAll(
-                lblIngreso,
-                lblSubIngreso,
-                btnUsuario,
-                btnAdmin,
-                divider,
-                btnSalir
+        // Tarjeta Usuario
+        VBox cardUser = crearCardAcceso(
+            "👤", "Acceso de Usuario",
+            "Gestiona tus propiedades, calcula paneles y genera informes energéticos.",
+            C_PRIMARY, "Ingresar como Usuario"
         );
-
-        // ── ROOT ──────────────────────────────────────────────────────
-        HBox root = new HBox(35);
-        root.setStyle("-fx-background-color: transparent;");
-        root.setPadding(new Insets(45));
-        root.setAlignment(Pos.CENTER);
-
-        HBox.setHgrow(panelDerecho, Priority.ALWAYS);
-        root.getChildren().addAll(panelIzquierdo, panelDerecho);
-
-        fondoPane.getChildren().add(root);
-
-        Scene scene = new Scene(fondoPane, 1300, 750);
-        primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.setMinWidth(1100);
-        primaryStage.setMinHeight(680);
-        primaryStage.show();
-    }
-
-    private void configurarAnimacionBoton(Button b, String estiloBase, String colorHex,
-                                           boolean esPrincipal, DropShadow glow) {
-        b.setOnMouseEntered(e -> {
-            if (esPrincipal) {
-                b.setStyle(estiloBase + "-fx-background-color: #1E88E5;");
-                b.setEffect(glow);
-            } else {
-                b.setStyle(estiloBase + "-fx-background-color: rgba(2, 136, 209, 0.15);");
-            }
+        cardUser.setOnMouseClicked(e -> {
+            new inicioSessionUsuarioFX(solarServicio, conexionDB).mostrarVentanaAcceso(stage);
         });
-        b.setOnMouseExited(e -> {
-            b.setStyle(estiloBase);
-            b.setEffect(null);
+
+        // Tarjeta Admin
+        VBox cardAdmin = crearCardAcceso(
+            "🛠", "Acceso Administrativo",
+            "Administra paneles, usuarios y configuración del sistema.",
+            C_SECONDARY, "Acceso Administrador"
+        );
+        cardAdmin.setOnMouseClicked(e -> {
+            new InicioSessionAdministrativoFX(solarServicio, conexionDB).mostrarVentanaAcceso(stage);
         });
-        b.setOnMousePressed(e -> b.setStyle(estiloBase + "-fx-scale-x: 0.98; -fx-scale-y: 0.98;"));
-        b.setOnMouseReleased(e -> b.setStyle(estiloBase));
+
+        Region spacerR = new Region(); spacerR.setPrefHeight(20);
+
+        Button btnSalir = new Button("Cerrar Aplicación");
+        btnSalir.setStyle("-fx-background-color: transparent; -fx-text-fill: " + C_TEXT_S + ";"
+                + "-fx-font-size: 12px; -fx-cursor: hand; -fx-border-color: " + C_BORDER + ";"
+                + "-fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 20;");
+        btnSalir.setOnMouseEntered(e -> btnSalir.setStyle(btnSalir.getStyle() + "-fx-background-color: " + C_BG + ";"));
+        btnSalir.setOnMouseExited(e -> btnSalir.setStyle("-fx-background-color: transparent; -fx-text-fill: " + C_TEXT_S + ";"
+                + "-fx-font-size: 12px; -fx-cursor: hand; -fx-border-color: " + C_BORDER + ";"
+                + "-fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 20;"));
+        btnSalir.setOnAction(e -> stage.close());
+
+        right.getChildren().addAll(lblBienvenido, lblSub, cardUser, new Region() {{ setPrefHeight(12); }}, cardAdmin, spacerR, btnSalir);
+
+        mainLayout.getChildren().addAll(left, right);
+        root.getChildren().add(mainLayout);
+        StackPane.setAlignment(mainLayout, Pos.CENTER);
+
+        Scene scene = new Scene(root, 1300, 750);
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(650);
+        stage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    private VBox crearCardAcceso(String icon, String titulo, String desc, String color, String btnLabel) {
+        VBox card = new VBox(10);
+        card.setStyle("-fx-background-color: " + C_SURFACE + "; -fx-border-color: " + C_BORDER + ";"
+                + "-fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1.5;"
+                + "-fx-padding: 22; -fx-cursor: hand;");
+        card.setEffect(new DropShadow(8, 0, 2, Color.color(0,0,0,0.06)));
+
+        card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: " + C_BG + "; -fx-border-color: " + color + ";"
+                + "-fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1.5;"
+                + "-fx-padding: 22; -fx-cursor: hand;"));
+        card.setOnMouseExited(e -> card.setStyle("-fx-background-color: " + C_SURFACE + "; -fx-border-color: " + C_BORDER + ";"
+                + "-fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1.5;"
+                + "-fx-padding: 22; -fx-cursor: hand;"));
+
+        HBox header = new HBox(12);
+        header.setAlignment(Pos.CENTER_LEFT);
+        Label ico = new Label(icon); ico.setStyle("-fx-font-size: 22px;");
+        Label tit = new Label(titulo);
+        tit.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + C_TEXT + ";");
+        header.getChildren().addAll(ico, tit);
+
+        Label d = new Label(desc);
+        d.setStyle("-fx-font-size: 12px; -fx-text-fill: " + C_TEXT_S + "; -fx-wrap-text: true;");
+        d.setWrapText(true);
+
+        Label btn = new Label(btnLabel + "  →");
+        btn.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 13px; -fx-font-weight: bold;");
+
+        card.getChildren().addAll(header, d, btn);
+        return card;
     }
+
+    public static void main(String[] args) { launch(args); }
 }
