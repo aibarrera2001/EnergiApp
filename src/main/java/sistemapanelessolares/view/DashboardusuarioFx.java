@@ -36,18 +36,22 @@ public class DashboardusuarioFx {
     private Label lblMetricaCasas, lblMetricaPanel, lblMetricaConsumo;
     private VBox  vboxInformeFinanciero;
 
+    // ── Paleta ────────────────────────────────────────────────────────
     private static final String C_PRIMARY   = "#0D5BD7";
     private static final String C_PRIMARY_L = "#EEF4FF";
-    private static final String C_BG        = "#F5F7FA";
+    private static final String C_PRIMARY_D = "#0A47B0";
+    private static final String C_BG        = "#F0F4FA";
     private static final String C_SURFACE   = "#FFFFFF";
     private static final String C_TEXT      = "#1F2937";
     private static final String C_TEXT_S    = "#6B7280";
-    private static final String C_BORDER    = "#E5E7EB";
+    private static final String C_BORDER    = "#E2E8F0";
     private static final String C_SUCCESS   = "#16A34A";
     private static final String C_SUCCESS_L = "#F0FDF4";
     private static final String C_WARNING   = "#D97706";
     private static final String C_WARNING_L = "#FFFBEB";
     private static final String C_ERROR     = "#DC2626";
+    private static final String C_PURPLE    = "#7C3AED";
+    private static final String C_PURPLE_L  = "#F5F3FF";
 
     public DashboardusuarioFx(Usuario u, SolarService s, Connection c) {
         this.usuarioLogueado = u; this.solarServicio = s; this.conexionDB = c;
@@ -57,25 +61,25 @@ public class DashboardusuarioFx {
         stage.setTitle("EnergiApp — Panel de Usuario");
 
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: " + C_BG + ";");
+        root.setStyle("-fx-background-color:" + C_BG + ";");
         root.setTop(construirNavbar(stage));
 
-        // Tabs principales
         TabPane tabs = new TabPane();
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        tabs.setStyle("-fx-background-color: " + C_BG + "; -fx-tab-min-height: 42px;");
+        tabs.setStyle("-fx-background-color:" + C_BG + "; -fx-tab-min-height:44px;"
+                + "-fx-tab-max-height:44px;");
 
         Tab tDash = new Tab("🏠  Dashboard");
         tDash.setContent(construirDashboard(stage));
 
         Tab tGraf = new Tab("📊  Gráficas");
         PestanaGraficasFX pg = new PestanaGraficasFX(usuarioLogueado, solarServicio);
-        tGraf.setContent(((ScrollPane)pg.crearPestanaGraficas().getContent()));
+        tGraf.setContent(((ScrollPane) pg.crearPestanaGraficas().getContent()));
 
         tabs.getTabs().addAll(tDash, tGraf);
         root.setCenter(tabs);
 
-        stage.setScene(new Scene(root, 1400, 820));
+        stage.setScene(new Scene(root, 1400, 860));
         stage.setMaximized(true);
         stage.setMinWidth(1100); stage.setMinHeight(700);
         stage.show();
@@ -86,231 +90,276 @@ public class DashboardusuarioFx {
 
     // ── NAVBAR ────────────────────────────────────────────────────────
     private HBox construirNavbar(Stage stage) {
-        HBox nav = new HBox(14);
-        nav.setPadding(new Insets(10, 24, 10, 24));
+        HBox nav = new HBox(16);
+        nav.setPadding(new Insets(10, 28, 10, 28));
         nav.setAlignment(Pos.CENTER_LEFT);
-        nav.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-border-color: transparent transparent "
-                + C_BORDER + " transparent; -fx-border-width: 0 0 1 0;");
-        nav.setEffect(new DropShadow(3, 0, 1, Color.color(0,0,0,0.05)));
+        nav.setStyle("-fx-background-color:" + C_SURFACE + ";"
+                + "-fx-border-color: transparent transparent " + C_BORDER + " transparent;"
+                + "-fx-border-width: 0 0 1.5 0;");
+        nav.setEffect(new DropShadow(6, 0, 2, Color.color(0,0,0,0.07)));
 
-        // Logo
+        // Logo más grande
         InputStream li = getClass().getResourceAsStream("/sistemapanelessolares/resources/logo.jpeg");
         javafx.scene.Node logo;
         if (li != null) {
             ImageView iv = new ImageView(new Image(li));
-            iv.setFitWidth(34); iv.setFitHeight(34); iv.setPreserveRatio(true);
-            Circle cl = new Circle(17,17,17); iv.setClip(cl); logo = iv;
+            iv.setFitWidth(52); iv.setFitHeight(52); iv.setPreserveRatio(true);
+            Circle cl = new Circle(26, 26, 26); iv.setClip(cl);
+            iv.setEffect(new DropShadow(6, Color.color(0,0,0,0.15)));
+            logo = iv;
         } else {
-            Label fb = new Label("⚡"); fb.setStyle("-fx-font-size:18px;"); logo = fb;
+            Label fb = new Label("⚡"); fb.setStyle("-fx-font-size:26px;"); logo = fb;
         }
 
-        VBox appName = new VBox(1);
+        VBox appName = new VBox(2);
         Label lApp = new Label("EnergiApp");
-        lApp.setStyle("-fx-font-size:15px; -fx-font-weight:900; -fx-text-fill:"+C_TEXT+";");
+        lApp.setStyle("-fx-font-size:18px; -fx-font-weight:900; -fx-text-fill:" + C_TEXT + ";");
         Label lSub = new Label("Sistema de Gestión Solar");
-        lSub.setStyle("-fx-font-size:10px; -fx-text-fill:"+C_TEXT_S+";");
+        lSub.setStyle("-fx-font-size:11px; -fx-text-fill:" + C_TEXT_S + ";");
         appName.getChildren().addAll(lApp, lSub);
 
         Region sp = new Region(); HBox.setHgrow(sp, Priority.ALWAYS);
 
-        // Avatar
-        String ini = usuarioLogueado.getNombre().substring(0,1).toUpperCase();
+        // Avatar inicial
+        String ini = usuarioLogueado.getNombre().substring(0, 1).toUpperCase();
         Label av = new Label(ini);
-        av.setStyle("-fx-background-color:"+C_PRIMARY+"; -fx-text-fill:white; -fx-font-size:14px;"
-                + "-fx-font-weight:bold; -fx-background-radius:18; -fx-min-width:36; -fx-min-height:36;"
-                + "-fx-alignment:center; -fx-padding:0;");
-        VBox uInfo = new VBox(1);
+        av.setStyle("-fx-background-color:" + C_PRIMARY + "; -fx-text-fill:white;"
+                + "-fx-font-size:17px; -fx-font-weight:bold; -fx-background-radius:22;"
+                + "-fx-min-width:44; -fx-min-height:44; -fx-alignment:center;");
+
+        VBox uInfo = new VBox(2);
         Label uNom = new Label(usuarioLogueado.getNombre() + " " + usuarioLogueado.getApellido());
-        uNom.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
+        uNom.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
         Label uRol = new Label("Usuario  •  " + usuarioLogueado.getCorreo());
-        uRol.setStyle("-fx-font-size:11px; -fx-text-fill:"+C_TEXT_S+";");
+        uRol.setStyle("-fx-font-size:11px; -fx-text-fill:" + C_TEXT_S + ";");
         uInfo.getChildren().addAll(uNom, uRol);
 
-        Button btnSalir = new Button("Cerrar Sesión");
-        btnSalir.setStyle("-fx-background-color:transparent; -fx-text-fill:"+C_ERROR+";"
-                + "-fx-font-size:12px; -fx-cursor:hand; -fx-border-color:"+C_ERROR+";"
-                + "-fx-border-radius:8; -fx-background-radius:8; -fx-padding:6 14;");
-        btnSalir.setOnAction(e -> { try { new IngresoFX().start(stage); } catch(Exception ex){ex.printStackTrace();} });
+        Separator sep = new Separator();
+        sep.setStyle("-fx-orientation:vertical; -fx-pref-height:40;");
 
-        nav.getChildren().addAll(logo, appName, sp, av, uInfo, btnSalir);
+        Button btnSalir = new Button("Cerrar Sesión");
+        btnSalir.setStyle("-fx-background-color:transparent; -fx-text-fill:" + C_ERROR + ";"
+                + "-fx-font-size:13px; -fx-font-weight:bold; -fx-cursor:hand;"
+                + "-fx-border-color:" + C_ERROR + "; -fx-border-radius:8;"
+                + "-fx-background-radius:8; -fx-padding:7 18;");
+        btnSalir.setOnAction(e -> { try { new IngresoFX().start(stage); } catch (Exception ex) { ex.printStackTrace(); } });
+
+        nav.getChildren().addAll(logo, appName, sp, av, uInfo, sep, btnSalir);
         return nav;
     }
 
-    // ── DASHBOARD ─────────────────────────────────────────────────────
+    // ── DASHBOARD PRINCIPAL ───────────────────────────────────────────
     private SplitPane construirDashboard(Stage stage) {
         SplitPane split = new SplitPane();
-        split.setStyle("-fx-background-color:"+C_BG+"; -fx-box-border: transparent;");
-        split.setDividerPositions(0.67);
+        split.setStyle("-fx-background-color:" + C_BG + "; -fx-box-border:transparent;");
+        split.setDividerPositions(0.65);
 
-        // ── PANEL IZQUIERDO ───────────────────────────────────────────
-        VBox left = new VBox(14);
-        left.setPadding(new Insets(18, 10, 18, 18));
-        left.setStyle("-fx-background-color:"+C_BG+";");
+        // ── IZQUIERDA ─────────────────────────────────────────────────
+        ScrollPane leftScroll = new ScrollPane();
+        leftScroll.setFitToWidth(true);
+        leftScroll.setStyle("-fx-background:" + C_BG + "; -fx-background-color:" + C_BG + ";");
+        leftScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        VBox left = new VBox(18);
+        left.setPadding(new Insets(20, 12, 20, 20));
 
         // Métricas
         lblMetricaCasas   = new Label("0");
         lblMetricaPanel   = new Label("—");
         lblMetricaConsumo = new Label("0");
-        HBox metricas = new HBox(12,
-            metricaCard("🏠","Propiedades",   lblMetricaCasas,   "registradas", C_PRIMARY,   C_PRIMARY_L),
-            metricaCard("⚡","Panel Activo",   lblMetricaPanel,   "asignado",    C_SUCCESS,   C_SUCCESS_L),
-            metricaCard("📊","Consumo Mensual",lblMetricaConsumo, "kWh",         C_WARNING,   C_WARNING_L)
+
+        HBox metricas = new HBox(14,
+            metricaCard("🏠", "Propiedades",    lblMetricaCasas,   "registradas",   C_PRIMARY, C_PRIMARY_L),
+            metricaCard("⚡", "Panel Activo",    lblMetricaPanel,   "asignado",      C_SUCCESS, C_SUCCESS_L),
+            metricaCard("📊", "Consumo Mensual", lblMetricaConsumo, "kWh estimados", C_WARNING, C_WARNING_L)
         );
         metricas.getChildren().forEach(n -> HBox.setHgrow(n, Priority.ALWAYS));
 
-        // Sección casas
-        VBox secCasas = new VBox(10);
-        secCasas.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:14;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:14; -fx-padding:18;");
-        secCasas.setEffect(new DropShadow(5,0,1,Color.color(0,0,0,0.05)));
-        VBox.setVgrow(secCasas, Priority.SOMETIMES);
+        // ── SECCIÓN PROPIEDADES ───────────────────────────────────────
+        VBox secCasas = new VBox(0);
+        secCasas.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-background-radius:16;"
+                + "-fx-border-color:" + C_BORDER + "; -fx-border-radius:16;");
+        secCasas.setEffect(new DropShadow(8, 0, 2, Color.color(0,0,0,0.06)));
 
-        HBox casasHdr = new HBox(8); casasHdr.setAlignment(Pos.CENTER_LEFT);
-        Label casasTit = new Label("🏠  Mis Propiedades");
-        casasTit.setStyle("-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
-        Label casasSub = new Label("Selecciona un panel para cada propiedad");
-        casasSub.setStyle("-fx-font-size:12px; -fx-text-fill:"+C_TEXT_S+";");
-        Button btnAgregar = new Button("+ Agregar");
-        btnAgregar.setStyle("-fx-background-color:"+C_PRIMARY_L+"; -fx-text-fill:"+C_PRIMARY+";"
+        // Header propiedades
+        HBox casasHdr = new HBox(12);
+        casasHdr.setAlignment(Pos.CENTER_LEFT);
+        casasHdr.setPadding(new Insets(18, 18, 14, 18));
+        casasHdr.setStyle("-fx-background-color:" + C_PRIMARY + "; -fx-background-radius:16 16 0 0;");
+
+        Label casasIco = new Label("🏠"); casasIco.setStyle("-fx-font-size:20px;");
+        VBox casasTxt = new VBox(2);
+        Label casasTit = new Label("Mis Propiedades");
+        casasTit.setStyle("-fx-font-size:16px; -fx-font-weight:900; -fx-text-fill:white;");
+        Label casasSub = new Label("Selecciona el panel solar más adecuado para cada propiedad");
+        casasSub.setStyle("-fx-font-size:12px; -fx-text-fill:rgba(255,255,255,0.80);");
+        casasTxt.getChildren().addAll(casasTit, casasSub);
+        HBox.setHgrow(casasTxt, Priority.ALWAYS);
+
+        Button btnAgregar = new Button("+ Nueva Propiedad");
+        btnAgregar.setStyle("-fx-background-color:rgba(255,255,255,0.18); -fx-text-fill:white;"
                 + "-fx-font-size:12px; -fx-font-weight:bold; -fx-cursor:hand;"
-                + "-fx-background-radius:8; -fx-padding:5 12;");
-        Region spH = new Region(); HBox.setHgrow(spH, Priority.ALWAYS);
-        casasHdr.getChildren().addAll(new VBox(2,casasTit,casasSub), spH, btnAgregar);
-
+                + "-fx-background-radius:10; -fx-padding:7 16;"
+                + "-fx-border-color:rgba(255,255,255,0.4); -fx-border-radius:10;");
+        btnAgregar.setOnMouseEntered(e -> btnAgregar.setStyle(btnAgregar.getStyle()
+                .replace("rgba(255,255,255,0.18)", "rgba(255,255,255,0.30)")));
+        btnAgregar.setOnMouseExited(e -> btnAgregar.setStyle(btnAgregar.getStyle()
+                .replace("rgba(255,255,255,0.30)", "rgba(255,255,255,0.18)")));
         btnAgregar.setOnAction(e -> {
             try {
                 Registro reg = new Registro(conexionDB);
                 Optional<Casa> res = reg.mostrarModalRegistroCasa(usuarioLogueado.getId());
                 res.ifPresent(casa -> { usuarioLogueado.agregarCasa(casa); refrescarCasas(); actualizarMetricas(); });
-            } catch(Exception ex) { alerta("Error", ex.getMessage(), Alert.AlertType.ERROR); }
+            } catch (Exception ex) { alerta("Error", ex.getMessage(), Alert.AlertType.ERROR); }
         });
+        casasHdr.getChildren().addAll(casasIco, casasTxt, btnAgregar);
 
-        listaCasasBox = new VBox(10);
-        ScrollPane scrollCasas = new ScrollPane(listaCasasBox);
-        scrollCasas.setFitToWidth(true);
-        scrollCasas.setStyle("-fx-background:transparent; -fx-background-color:transparent;");
-        scrollCasas.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollCasas.setPrefHeight(260);
-        VBox.setVgrow(scrollCasas, Priority.ALWAYS);
+        listaCasasBox = new VBox(0);
+        listaCasasBox.setPadding(new Insets(14));
+        listaCasasBox.setSpacing(12);
 
-        secCasas.getChildren().addAll(casasHdr, new Separator(), scrollCasas);
+        secCasas.getChildren().addAll(casasHdr, listaCasasBox);
 
-        // Sección informe
-        VBox secInforme = new VBox(10);
-        secInforme.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:14;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:14; -fx-padding:18;");
-        secInforme.setEffect(new DropShadow(5,0,1,Color.color(0,0,0,0.05)));
-        VBox.setVgrow(secInforme, Priority.ALWAYS);
+        // ── SECCIÓN ESTUDIO FINANCIERO ────────────────────────────────
+        VBox secInforme = new VBox(0);
+        secInforme.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-background-radius:16;"
+                + "-fx-border-color:" + C_BORDER + "; -fx-border-radius:16;");
+        secInforme.setEffect(new DropShadow(8, 0, 2, Color.color(0,0,0,0.06)));
 
-        HBox informeHdr = new HBox(8); informeHdr.setAlignment(Pos.CENTER_LEFT);
-        Label informeTit = new Label("📋  Estudio Financiero");
-        informeTit.setStyle("-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
-        Button btnGenerar = new Button("Generar Informe");
-        btnGenerar.setStyle("-fx-background-color:"+C_SUCCESS+"; -fx-text-fill:white;"
+        // Header informe
+        HBox informeHdr = new HBox(12);
+        informeHdr.setAlignment(Pos.CENTER_LEFT);
+        informeHdr.setPadding(new Insets(18, 18, 14, 18));
+        informeHdr.setStyle("-fx-background-color:" + C_SUCCESS + "; -fx-background-radius:16 16 0 0;");
+
+        Label informeIco = new Label("📋"); informeIco.setStyle("-fx-font-size:20px;");
+        VBox informeTxt = new VBox(2);
+        Label informeTit = new Label("Estudio Financiero");
+        informeTit.setStyle("-fx-font-size:16px; -fx-font-weight:900; -fx-text-fill:white;");
+        Label informeSub = new Label("Análisis de inversión, ahorro y retorno por propiedad");
+        informeSub.setStyle("-fx-font-size:12px; -fx-text-fill:rgba(255,255,255,0.82);");
+        informeTxt.getChildren().addAll(informeTit, informeSub);
+        HBox.setHgrow(informeTxt, Priority.ALWAYS);
+
+        Button btnGenerar = new Button("⚡ Generar Informe");
+        btnGenerar.setStyle("-fx-background-color:rgba(255,255,255,0.18); -fx-text-fill:white;"
                 + "-fx-font-size:12px; -fx-font-weight:bold; -fx-cursor:hand;"
-                + "-fx-background-radius:8; -fx-padding:7 16;");
+                + "-fx-background-radius:10; -fx-padding:7 16;"
+                + "-fx-border-color:rgba(255,255,255,0.4); -fx-border-radius:10;");
         btnGenerar.setOnAction(e -> generarInformeTodas());
-        Region spI = new Region(); HBox.setHgrow(spI, Priority.ALWAYS);
-        informeHdr.getChildren().addAll(informeTit, spI, btnGenerar);
+        informeHdr.getChildren().addAll(informeIco, informeTxt, btnGenerar);
 
-        vboxInformeFinanciero = new VBox(12);
+        vboxInformeFinanciero = new VBox(0);
         vboxInformeFinanciero.setAlignment(Pos.CENTER);
-        vboxInformeFinanciero.setPadding(new Insets(24));
-        vboxInformeFinanciero.setStyle("-fx-background-color:"+C_BG+"; -fx-background-radius:10;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:10;");
-        VBox.setVgrow(vboxInformeFinanciero, Priority.ALWAYS);
-        Label ico = new Label("📊"); ico.setStyle("-fx-font-size:36px;");
-        Label msg = new Label("Selecciona un panel para cada propiedad\ny presiona 'Generar Informe'");
-        msg.setStyle("-fx-font-size:13px; -fx-text-fill:"+C_TEXT_S+"; -fx-text-alignment:center;");
-        msg.setWrapText(true); msg.setAlignment(Pos.CENTER);
-        vboxInformeFinanciero.getChildren().addAll(ico, msg);
+        vboxInformeFinanciero.setPadding(new Insets(36));
+        vboxInformeFinanciero.setMinHeight(160);
 
-        secInforme.getChildren().addAll(informeHdr, new Separator(), vboxInformeFinanciero);
+        Label icoPlh = new Label("📊"); icoPlh.setStyle("-fx-font-size:40px;");
+        Label msgPlh = new Label("Selecciona un panel para cada propiedad\ny presiona 'Generar Informe' para ver el análisis financiero completo");
+        msgPlh.setStyle("-fx-font-size:13px; -fx-text-fill:" + C_TEXT_S + "; -fx-text-alignment:center;");
+        msgPlh.setWrapText(true); msgPlh.setAlignment(Pos.CENTER);
+        vboxInformeFinanciero.getChildren().addAll(icoPlh, msgPlh);
+
+        secInforme.getChildren().addAll(informeHdr, vboxInformeFinanciero);
 
         left.getChildren().addAll(metricas, secCasas, secInforme);
-        VBox.setVgrow(secInforme, Priority.ALWAYS);
+        leftScroll.setContent(left);
 
-        // ── PANEL DERECHO: OPERACIONES ────────────────────────────────
-        VBox right = new VBox(14);
-        right.setPadding(new Insets(18, 18, 18, 10));
-        right.setStyle("-fx-background-color:"+C_BG+";");
+        // ── DERECHA ───────────────────────────────────────────────────
+        ScrollPane rightScroll = new ScrollPane();
+        rightScroll.setFitToWidth(true);
+        rightScroll.setStyle("-fx-background:" + C_BG + "; -fx-background-color:" + C_BG + ";");
+        rightScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        VBox right = new VBox(16);
+        right.setPadding(new Insets(20, 20, 20, 12));
 
         // Card IA
-        VBox cardIA = new VBox(12);
-        cardIA.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:14;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:14; -fx-padding:18;");
-        cardIA.setEffect(new DropShadow(5,0,1,Color.color(0,0,0,0.05)));
+        VBox cardIA = new VBox(14);
+        cardIA.setStyle("-fx-background-color:" + C_PRIMARY + "; -fx-background-radius:16; -fx-padding:20;");
+        cardIA.setEffect(new DropShadow(10, 0, 3, Color.color(0.05,0.35,0.85,0.25)));
+
         Label iaTit = new Label("🤖  Asistente IA Solar");
-        iaTit.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
-        Label iaSub = new Label("Consulta dudas sobre paneles, costos e instalaciones");
-        iaSub.setStyle("-fx-font-size:12px; -fx-text-fill:"+C_TEXT_S+"; -fx-wrap-text:true;");
+        iaTit.setStyle("-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:white;");
+        Label iaSub = new Label("Pregunta sobre paneles, costos de instalación, retorno de inversión y más.");
+        iaSub.setStyle("-fx-font-size:12px; -fx-text-fill:rgba(255,255,255,0.85); -fx-wrap-text:true;");
         iaSub.setWrapText(true);
-        HBox iaStatus = new HBox(6); iaStatus.setAlignment(Pos.CENTER_LEFT);
-        Label onl = new Label("●"); onl.setStyle("-fx-text-fill:"+C_SUCCESS+"; -fx-font-size:10px;");
-        Label onlT = new Label("En línea"); onlT.setStyle("-fx-font-size:11px; -fx-text-fill:"+C_SUCCESS+"; -fx-font-weight:bold;");
-        iaStatus.getChildren().addAll(onl, onlT);
-        Button btnIA = new Button("Abrir Chat IA");
+
+        HBox iaOnl = new HBox(6); iaOnl.setAlignment(Pos.CENTER_LEFT);
+        Label onlDot = new Label("●"); onlDot.setStyle("-fx-text-fill:#86EFAC; -fx-font-size:11px;");
+        Label onlTxt = new Label("En línea y listo para ayudarte");
+        onlTxt.setStyle("-fx-font-size:11px; -fx-text-fill:rgba(255,255,255,0.80);");
+        iaOnl.getChildren().addAll(onlDot, onlTxt);
+
+        Button btnIA = new Button("Abrir Chat IA  →");
         btnIA.setMaxWidth(Double.MAX_VALUE);
-        btnIA.setStyle("-fx-background-color:"+C_PRIMARY+"; -fx-text-fill:white;"
+        btnIA.setStyle("-fx-background-color:white; -fx-text-fill:" + C_PRIMARY + ";"
                 + "-fx-font-size:13px; -fx-font-weight:bold; -fx-background-radius:10;"
-                + "-fx-cursor:hand; -fx-padding:10 0;");
+                + "-fx-cursor:hand; -fx-padding:11 0;");
         btnIA.setOnAction(e -> new chatBootFX(solarServicio).mostrar());
-        cardIA.getChildren().addAll(iaTit, iaSub, iaStatus, btnIA);
+        cardIA.getChildren().addAll(iaTit, iaSub, iaOnl, btnIA);
 
-        // Card perfil usuario
-        VBox cardPerfil = new VBox(12);
-        cardPerfil.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:14;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:14; -fx-padding:18;");
-        cardPerfil.setEffect(new DropShadow(5,0,1,Color.color(0,0,0,0.05)));
+        // Card perfil
+        VBox cardPerfil = new VBox(0);
+        cardPerfil.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-background-radius:16;"
+                + "-fx-border-color:" + C_BORDER + "; -fx-border-radius:16;");
+        cardPerfil.setEffect(new DropShadow(8, 0, 2, Color.color(0,0,0,0.06)));
 
-        // Avatar grande
+        // Header perfil
+        VBox perfilHdr = new VBox(8);
+        perfilHdr.setAlignment(Pos.CENTER);
+        perfilHdr.setPadding(new Insets(20, 20, 16, 20));
+        perfilHdr.setStyle("-fx-background-color:" + C_BG + "; -fx-background-radius:16 16 0 0;"
+                + "-fx-border-color:transparent transparent " + C_BORDER + " transparent;");
+
         Label avG = new Label(usuarioLogueado.getNombre().substring(0,1).toUpperCase());
-        avG.setStyle("-fx-background-color:"+C_PRIMARY+"; -fx-text-fill:white; -fx-font-size:22px;"
-                + "-fx-font-weight:bold; -fx-background-radius:28; -fx-min-width:56; -fx-min-height:56;"
-                + "-fx-alignment:center;");
+        avG.setStyle("-fx-background-color:" + C_PRIMARY + "; -fx-text-fill:white;"
+                + "-fx-font-size:26px; -fx-font-weight:bold; -fx-background-radius:34;"
+                + "-fx-min-width:68; -fx-min-height:68; -fx-alignment:center;");
+        avG.setEffect(new DropShadow(8, Color.color(0.05,0.35,0.85,0.3)));
         HBox avBox = new HBox(avG); avBox.setAlignment(Pos.CENTER);
 
         Label pNom = new Label(usuarioLogueado.getNombre() + " " + usuarioLogueado.getApellido());
-        pNom.setStyle("-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
+        pNom.setStyle("-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
         pNom.setAlignment(Pos.CENTER); pNom.setMaxWidth(Double.MAX_VALUE);
 
-        Separator sepP = new Separator(); sepP.setStyle("-fx-background-color:"+C_BORDER+";");
+        Label pBadge = new Label("Usuario Registrado");
+        pBadge.setStyle("-fx-background-color:" + C_PRIMARY_L + "; -fx-text-fill:" + C_PRIMARY + ";"
+                + "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:3 12;"
+                + "-fx-background-radius:20;");
+        HBox pBadgeBox = new HBox(pBadge); pBadgeBox.setAlignment(Pos.CENTER);
+        perfilHdr.getChildren().addAll(avBox, pNom, pBadgeBox);
 
-        VBox infoRows = new VBox(8);
-        infoRows.getChildren().addAll(
-            infoRow("✉", "Correo", usuarioLogueado.getCorreo()),
-            infoRow("📱", "Teléfono", usuarioLogueado.getTelefono() != null ? usuarioLogueado.getTelefono() : "—"),
-            infoRow("🏠", "Propiedades", String.valueOf(usuarioLogueado.getCasas() != null ? usuarioLogueado.getCasas().size() : 0))
+        VBox perfilInfo = new VBox(0);
+        perfilInfo.setPadding(new Insets(14));
+        perfilInfo.getChildren().addAll(
+            infoFila("✉", "Correo",       usuarioLogueado.getCorreo()),
+            new Separator() {{ setStyle("-fx-background-color:" + C_BORDER + ";"); }},
+            infoFila("📱", "Teléfono",     usuarioLogueado.getTelefono() != null ? usuarioLogueado.getTelefono() : "—"),
+            new Separator() {{ setStyle("-fx-background-color:" + C_BORDER + ";"); }},
+            infoFila("🏠", "Propiedades",  String.valueOf(usuarioLogueado.getCasas() != null ? usuarioLogueado.getCasas().size() : 0) + " registradas")
         );
 
-        cardPerfil.getChildren().addAll(avBox, pNom, sepP, infoRows);
+        cardPerfil.getChildren().addAll(perfilHdr, perfilInfo);
 
-        // Card resumen financiero (actualizable)
-        VBox cardResumen = new VBox(10);
-        cardResumen.setStyle("-fx-background-color:"+C_PRIMARY_L+"; -fx-background-radius:14;"
-                + "-fx-border-color:rgba(13,91,215,0.2); -fx-border-radius:14; -fx-padding:16;");
+        // Card consejo
+        VBox cardConsejo = new VBox(10);
+        cardConsejo.setStyle("-fx-background-color:" + C_WARNING_L + "; -fx-background-radius:14;"
+                + "-fx-border-color:" + C_WARNING + "44; -fx-border-radius:14;"
+                + "-fx-border-left-color:" + C_WARNING + "; -fx-border-width:1 1 1 4;"
+                + "-fx-padding:16;");
 
-        Label resTit = new Label("💡  Consejo del Día");
-        resTit.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:"+C_PRIMARY+";");
-        Label resTxt = new Label("La región Caribe colombiana recibe hasta 6.7 horas de sol pico diarias, "
-                + "lo que la convierte en una de las zonas con mayor potencial solar del país.");
-        resTxt.setStyle("-fx-font-size:12px; -fx-text-fill:#374151; -fx-wrap-text:true;");
-        resTxt.setWrapText(true);
-        cardResumen.getChildren().addAll(resTit, resTxt);
+        Label csTit = new Label("💡  Sabías que...");
+        csTit.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:" + C_WARNING + ";");
+        Label csTxt = new Label("La región Caribe colombiana recibe entre 5.5 y 6.9 horas de sol pico diarias, "
+                + "una de las mayores radiaciones solares de Latinoamérica. "
+                + "Esto hace que la inversión en paneles solares sea especialmente rentable.");
+        csTxt.setStyle("-fx-font-size:12px; -fx-text-fill:#92400E; -fx-wrap-text:true;");
+        csTxt.setWrapText(true);
+        cardConsejo.getChildren().addAll(csTit, csTxt);
 
-        Region spacerR = new Region(); VBox.setVgrow(spacerR, Priority.ALWAYS);
-
-        right.getChildren().addAll(cardIA, cardPerfil, cardResumen, spacerR);
-
-        ScrollPane leftScroll = new ScrollPane(left);
-        leftScroll.setFitToWidth(true);
-        leftScroll.setStyle("-fx-background:"+C_BG+"; -fx-background-color:"+C_BG+";");
-        leftScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
-        ScrollPane rightScroll = new ScrollPane(right);
-        rightScroll.setFitToWidth(true);
-        rightScroll.setStyle("-fx-background:"+C_BG+"; -fx-background-color:"+C_BG+";");
-        rightScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        right.getChildren().addAll(cardIA, cardPerfil, cardConsejo);
+        rightScroll.setContent(right);
 
         split.getItems().addAll(leftScroll, rightScroll);
         return split;
@@ -324,10 +373,9 @@ public class DashboardusuarioFx {
         if (casas == null || casas.isEmpty()) {
             VBox empty = new VBox(10); empty.setAlignment(Pos.CENTER);
             empty.setPadding(new Insets(30));
-            empty.setStyle("-fx-background-color:"+C_BG+"; -fx-background-radius:10;");
-            Label eIco = new Label("🏠"); eIco.setStyle("-fx-font-size:32px;");
-            Label eTxt = new Label("Aún no tienes propiedades.\nHaz clic en '+ Agregar' para comenzar.");
-            eTxt.setStyle("-fx-font-size:13px; -fx-text-fill:"+C_TEXT_S+"; -fx-text-alignment:center;");
+            Label eIco = new Label("🏠"); eIco.setStyle("-fx-font-size:36px;");
+            Label eTxt = new Label("Aún no tienes propiedades registradas.\nHaz clic en '+ Nueva Propiedad' para agregar una.");
+            eTxt.setStyle("-fx-font-size:13px; -fx-text-fill:" + C_TEXT_S + "; -fx-text-alignment:center;");
             eTxt.setWrapText(true); eTxt.setAlignment(Pos.CENTER);
             empty.getChildren().addAll(eIco, eTxt);
             listaCasasBox.getChildren().add(empty);
@@ -339,66 +387,82 @@ public class DashboardusuarioFx {
         for (int i = 0; i < casas.size(); i++) {
             final int idx = i;
             Casa c = casas.get(i);
+            double hsp = new CalculadoraPanels(c, null, 0).getHorasSolEstimadas();
 
-            VBox card = new VBox(12);
-            card.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:12;"
-                    + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:12; -fx-padding:14;");
-            card.setEffect(new DropShadow(4,0,1,Color.color(0,0,0,0.04)));
+            VBox card = new VBox(0);
+            card.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-background-radius:14;"
+                    + "-fx-border-color:" + C_BORDER + "; -fx-border-radius:14;");
+            card.setEffect(new DropShadow(5, 0, 1, Color.color(0,0,0,0.05)));
 
-            // Header
-            HBox hdr = new HBox(10); hdr.setAlignment(Pos.CENTER_LEFT);
-            Label badge = new Label("Casa #" + (i+1));
-            badge.setStyle("-fx-background-color:"+C_PRIMARY+"; -fx-text-fill:white;"
-                    + "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:3 10; -fx-background-radius:20;");
-            Label dirLabel = new Label(c.getDireccion());
-            dirLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
-            dirLabel.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(dirLabel, Priority.ALWAYS);
-            hdr.getChildren().addAll(badge, dirLabel);
+            // ── Header de la casa ──
+            HBox hdr = new HBox(12);
+            hdr.setAlignment(Pos.CENTER_LEFT);
+            hdr.setPadding(new Insets(14, 16, 12, 16));
+            hdr.setStyle("-fx-background-color:" + C_BG + "; -fx-background-radius:14 14 0 0;"
+                    + "-fx-border-color:transparent transparent " + C_BORDER + " transparent;");
 
-            // Info row
-            HBox infoRow = new HBox(20); infoRow.setAlignment(Pos.CENTER_LEFT);
-            Label ciudadL = new Label("📍 " + c.getCiudad());
-            ciudadL.setStyle("-fx-font-size:12px; -fx-text-fill:"+C_TEXT_S+";");
-            Label consumoL = new Label("⚡ " + String.format("%.1f", c.getConsumoMensualKWh()) + " kWh/mes");
-            consumoL.setStyle("-fx-font-size:12px; -fx-text-fill:"+C_PRIMARY+"; -fx-font-weight:bold;");
-            Label hspL = new Label("☀ " + String.format("%.1f", new CalculadoraPanels(c, null, 0).getHorasSolEstimadas()) + " h/día");
-            hspL.setStyle("-fx-font-size:12px; -fx-text-fill:"+C_WARNING+"; -fx-font-weight:bold;");
-            infoRow.getChildren().addAll(ciudadL, consumoL, hspL);
+            Label badge = new Label("Casa #" + (i + 1));
+            badge.setStyle("-fx-background-color:" + C_PRIMARY + "; -fx-text-fill:white;"
+                    + "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:4 12; -fx-background-radius:20;");
 
-            // Panel selector
-            VBox selectorBox = new VBox(6);
-            Label selLabel = new Label("Panel Solar Seleccionado");
-            selLabel.setStyle("-fx-font-size:11px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT_S+";");
+            Label dirL = new Label(c.getDireccion());
+            dirL.setStyle("-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
+            dirL.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(dirL, Priority.ALWAYS);
+            hdr.getChildren().addAll(badge, dirL);
+
+            // ── Chips de info ──
+            HBox chips = new HBox(10);
+            chips.setAlignment(Pos.CENTER_LEFT);
+            chips.setPadding(new Insets(10, 16, 10, 16));
+            chips.setStyle("-fx-border-color:transparent transparent " + C_BORDER + " transparent;");
+            chips.getChildren().addAll(
+                chip("📍 " + c.getCiudad(),                                         C_TEXT_S,  "#F1F5F9"),
+                chip("⚡ " + String.format("%.0f", c.getConsumoMensualKWh()) + " kWh/mes", C_PRIMARY, C_PRIMARY_L),
+                chip("☀ " + String.format("%.1f", hsp) + " h/día",                 C_WARNING, C_WARNING_L)
+            );
+
+            // ── Selector de panel ──
+            VBox selectorSec = new VBox(8);
+            selectorSec.setPadding(new Insets(14, 16, 12, 16));
+            selectorSec.setStyle("-fx-border-color:transparent transparent " + C_BORDER + " transparent;");
+
+            Label selLbl = new Label("Panel Solar");
+            selLbl.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
 
             ComboBox<PanelSolar> combo = new ComboBox<>();
             combo.getItems().addAll(paneles);
             combo.setPromptText("— Seleccionar panel solar —");
             combo.setMaxWidth(Double.MAX_VALUE);
-            combo.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-border-color:"+C_BORDER+";"
-                    + "-fx-border-radius:8; -fx-background-radius:8; -fx-font-size:12px;"
-                    + "-fx-padding: 2 0;");
+            combo.setPrefHeight(38);
+            combo.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-border-color:" + C_BORDER + ";"
+                    + "-fx-border-radius:8; -fx-background-radius:8; -fx-font-size:13px;");
 
             combo.setCellFactory(lv -> new ListCell<PanelSolar>() {
                 @Override protected void updateItem(PanelSolar p, boolean empty) {
                     super.updateItem(p, empty);
-                    if (empty || p == null) { setText(null); return; }
-                    setText(p.getNombre() + "  —  " + (int)p.getPotenciaWatts() + " W  •  η " + p.getEficiencia() + "%  •  $" + String.format("%,.0f", p.getCostoUnidad()));
+                    if (empty || p == null) { setText(null); setGraphic(null); return; }
+                    VBox cell = new VBox(2);
+                    Label n = new Label(p.getNombre());
+                    n.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
+                    Label d = new Label(p.getTipo() + "  •  " + (int)p.getPotenciaWatts() + " W  •  η " + p.getEficiencia() + "%  •  $" + String.format("%,.0f", p.getCostoUnidad()));
+                    d.setStyle("-fx-font-size:11px; -fx-text-fill:" + C_TEXT_S + ";");
+                    cell.getChildren().addAll(n, d);
+                    setGraphic(cell); setText(null);
                 }
             });
             combo.setButtonCell(new ListCell<PanelSolar>() {
                 @Override protected void updateItem(PanelSolar p, boolean empty) {
                     super.updateItem(p, empty);
-                    if (empty || p == null) { setText("— Seleccionar panel solar —"); return; }
-                    setText(p.getNombre() + "  (" + (int)p.getPotenciaWatts() + " W)");
+                    setText(empty || p == null ? "— Seleccionar panel solar —" : p.getNombre() + "  (" + (int)p.getPotenciaWatts() + " W)");
                 }
             });
-
             if (panelesPorCasa.containsKey(idx)) combo.setValue(panelesPorCasa.get(idx));
+            selectorSec.getChildren().addAll(selLbl, combo);
 
-            // Resultado
-            HBox resBox = new HBox(12);
-            resBox.setAlignment(Pos.CENTER_LEFT);
+            // ── Resultado chips ──
+            HBox resBox = new HBox(10);
+            resBox.setPadding(new Insets(12, 16, 14, 16));
             resBox.setVisible(panelesPorCasa.containsKey(idx));
             resBox.setManaged(panelesPorCasa.containsKey(idx));
 
@@ -406,51 +470,43 @@ public class DashboardusuarioFx {
                 PanelSolar p = panelesPorCasa.get(idx);
                 CalculadoraPanels calc = new CalculadoraPanels(c, p, p.getCostoInstalacion());
                 resBox.getChildren().addAll(
-                    resChip("🔋 " + calc.calcularNumeroPaneles() + " paneles", C_PRIMARY, C_PRIMARY_L),
-                    resChip("💰 $" + String.format("%,.0f", calc.calcularCostoTotal()), C_SUCCESS, C_SUCCESS_L),
-                    resChip("⚡ " + String.format("%.0f", calc.calcularGeneracionMensualKWh()) + " kWh/mes", C_WARNING, C_WARNING_L)
+                    chipResultado("🔋 " + calc.calcularNumeroPaneles() + " paneles",                       C_PRIMARY, C_PRIMARY_L),
+                    chipResultado("💰 $" + String.format("%,.0f", calc.calcularCostoTotal()),              C_SUCCESS, C_SUCCESS_L),
+                    chipResultado("⚡ " + String.format("%.0f", calc.calcularGeneracionMensualKWh()) + " kWh/mes", C_WARNING, C_WARNING_L)
                 );
             }
 
             combo.setOnAction(ev -> {
-                PanelSolar sel = combo.getValue();
-                if (sel == null) return;
+                PanelSolar sel = combo.getValue(); if (sel == null) return;
                 panelesPorCasa.put(idx, sel);
                 CalculadoraPanels calc = new CalculadoraPanels(c, sel, sel.getCostoInstalacion());
                 resBox.getChildren().clear();
                 resBox.getChildren().addAll(
-                    resChip("🔋 " + calc.calcularNumeroPaneles() + " paneles", C_PRIMARY, C_PRIMARY_L),
-                    resChip("💰 $" + String.format("%,.0f", calc.calcularCostoTotal()), C_SUCCESS, C_SUCCESS_L),
-                    resChip("⚡ " + String.format("%.0f", calc.calcularGeneracionMensualKWh()) + " kWh/mes", C_WARNING, C_WARNING_L)
+                    chipResultado("🔋 " + calc.calcularNumeroPaneles() + " paneles",                       C_PRIMARY, C_PRIMARY_L),
+                    chipResultado("💰 $" + String.format("%,.0f", calc.calcularCostoTotal()),              C_SUCCESS, C_SUCCESS_L),
+                    chipResultado("⚡ " + String.format("%.0f", calc.calcularGeneracionMensualKWh()) + " kWh/mes", C_WARNING, C_WARNING_L)
                 );
                 resBox.setVisible(true); resBox.setManaged(true);
                 actualizarMetricas();
             });
 
-            selectorBox.getChildren().addAll(selLabel, combo);
-            card.getChildren().addAll(hdr, infoRow, new Separator(), selectorBox, resBox);
+            card.getChildren().addAll(hdr, chips, selectorSec, resBox);
             listaCasasBox.getChildren().add(card);
         }
     }
 
-    // ── Generar informe ───────────────────────────────────────────────
+    // ── Generar informe multi-casa ────────────────────────────────────
     private void generarInformeTodas() {
         List<Casa> casas = usuarioLogueado.getCasas();
-        if (casas == null || casas.isEmpty()) {
-            alerta("Sin propiedades", "Registra al menos una propiedad.", Alert.AlertType.WARNING); return;
-        }
-        if (panelesPorCasa.isEmpty()) {
-            alerta("Sin paneles", "Selecciona un panel para al menos una propiedad.", Alert.AlertType.WARNING); return;
-        }
+        if (casas == null || casas.isEmpty()) { alerta("Sin propiedades", "Registra al menos una propiedad.", Alert.AlertType.WARNING); return; }
+        if (panelesPorCasa.isEmpty()) { alerta("Sin paneles", "Selecciona al menos un panel.", Alert.AlertType.WARNING); return; }
 
         vboxInformeFinanciero.getChildren().clear();
         vboxInformeFinanciero.setAlignment(Pos.TOP_LEFT);
-        vboxInformeFinanciero.setPadding(new Insets(0));
-        vboxInformeFinanciero.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:10;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:10;");
+        vboxInformeFinanciero.setPadding(new Insets(16));
+        vboxInformeFinanciero.setSpacing(12);
 
         double totalInv = 0, totalAhorro = 0;
-        VBox contenido = new VBox(10); contenido.setPadding(new Insets(14));
 
         for (int i = 0; i < casas.size(); i++) {
             Casa c = casas.get(i);
@@ -458,69 +514,76 @@ public class DashboardusuarioFx {
             if (panel == null) continue;
 
             CalculadoraPanels calc = new CalculadoraPanels(c, panel, panel.getCostoInstalacion());
-            int numP    = calc.calcularNumeroPaneles();
-            double hsp  = calc.getHorasSolEstimadas();
-            double gen  = calc.calcularGeneracionMensualKWh();
-            double inv  = calc.calcularCostoTotal();
-            double aho  = Math.min(c.getConsumoMensualKWh(), gen) * 1000.0;
-            int meses   = aho > 0 ? (int) Math.ceil(inv / aho) : 0;
-            totalInv   += inv; totalAhorro += aho;
+            int    numP   = calc.calcularNumeroPaneles();
+            double hsp    = calc.getHorasSolEstimadas();
+            double gen    = calc.calcularGeneracionMensualKWh();
+            double inv    = calc.calcularCostoTotal();
+            double ahorro = Math.min(c.getConsumoMensualKWh(), gen) * 1000.0;
+            int meses     = ahorro > 0 ? (int) Math.ceil(inv / ahorro) : 0;
+            totalInv    += inv; totalAhorro += ahorro;
 
-            VBox cardCasa = new VBox(10);
-            cardCasa.setStyle("-fx-background-color:"+C_BG+"; -fx-background-radius:10;"
-                    + "-fx-border-color:"+C_BORDER+"; -fx-border-radius:10; -fx-padding:14;");
+            VBox cardCasa = new VBox(12);
+            cardCasa.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-background-radius:12;"
+                    + "-fx-border-color:" + C_BORDER + "; -fx-border-left-color:" + C_PRIMARY + ";"
+                    + "-fx-border-radius:12; -fx-padding:16; -fx-border-width:1 1 1 4;");
+            cardCasa.setEffect(new DropShadow(4, 0, 1, Color.color(0,0,0,0.04)));
 
-            // Header casa
+            // Header
             HBox cHdr = new HBox(10); cHdr.setAlignment(Pos.CENTER_LEFT);
-            Label cBadge = new Label("Casa #"+(i+1));
-            cBadge.setStyle("-fx-background-color:"+C_PRIMARY+"; -fx-text-fill:white;"
+            Label cBadge = new Label("Casa #" + (i+1));
+            cBadge.setStyle("-fx-background-color:" + C_PRIMARY + "; -fx-text-fill:white;"
                     + "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:3 10; -fx-background-radius:20;");
+            VBox cInfo = new VBox(2);
             Label cDir = new Label(c.getDireccion() + "  —  " + c.getCiudad());
-            cDir.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
-            Label cPanel = new Label("Panel: " + panel.getNombre());
-            cPanel.setStyle("-fx-font-size:11px; -fx-text-fill:"+C_TEXT_S+";");
-            Region spC = new Region(); HBox.setHgrow(spC, Priority.ALWAYS);
-            cHdr.getChildren().addAll(cBadge, new VBox(2,cDir,cPanel), spC);
+            cDir.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
+            Label cPanelL = new Label("Panel: " + panel.getNombre() + "  •  " + (int)panel.getPotenciaWatts() + " W  •  η " + panel.getEficiencia() + "%");
+            cPanelL.setStyle("-fx-font-size:11px; -fx-text-fill:" + C_TEXT_S + ";");
+            cInfo.getChildren().addAll(cDir, cPanelL);
+            HBox.setHgrow(cInfo, Priority.ALWAYS);
+            cHdr.getChildren().addAll(cBadge, cInfo);
 
-            // Grid datos
-            GridPane g = new GridPane(); g.setHgap(16); g.setVgap(6);
-            g.add(gridItem("Paneles",      numP + " und.",                    C_PRIMARY),  0, 0);
-            g.add(gridItem("HSP",          String.format("%.1f h/día", hsp), C_WARNING),  1, 0);
-            g.add(gridItem("Generación",   String.format("%.0f kWh/mes",gen), C_SUCCESS),  2, 0);
-            g.add(gridItem("Retorno",      meses>0 ? (meses/12)+"a "+(meses%12)+"m":"N/A", C_TEXT_S), 3, 0);
+            // Grid datos técnicos
+            HBox datos = new HBox(0);
+            datos.setStyle("-fx-background-color:" + C_BG + "; -fx-background-radius:10;");
+            datos.getChildren().addAll(
+                datoCell("Paneles",    numP + " und.",                     C_PRIMARY),
+                sep(),
+                datoCell("HSP",        String.format("%.1f h/día", hsp),   C_WARNING),
+                sep(),
+                datoCell("Generación", String.format("%.0f kWh/mes", gen), C_SUCCESS),
+                sep(),
+                datoCell("Retorno",    meses > 0 ? (meses/12)+"a "+(meses%12)+"m" : "N/A", C_TEXT_S)
+            );
+            datos.getChildren().stream().filter(n -> n instanceof VBox)
+                 .forEach(n -> HBox.setHgrow(n, Priority.ALWAYS));
 
             // Montos
             HBox montos = new HBox(10);
             montos.getChildren().addAll(
-                montoCard("Inversión Total",   "$"+String.format("%,.0f",inv),  C_PRIMARY, C_PRIMARY_L),
-                montoCard("Ahorro Mensual",    "$"+String.format("%,.0f",aho),  C_SUCCESS, C_SUCCESS_L),
-                montoCard("Ahorro Anual",      "$"+String.format("%,.0f",aho*12), C_SUCCESS, C_SUCCESS_L)
+                montoCard("Inversión Total",   "$"+String.format("%,.0f", inv),       C_PRIMARY, C_PRIMARY_L),
+                montoCard("Ahorro Mensual",    "$"+String.format("%,.0f", ahorro),    C_SUCCESS, C_SUCCESS_L),
+                montoCard("Ahorro Anual",      "$"+String.format("%,.0f", ahorro*12), C_SUCCESS, C_SUCCESS_L)
             );
             montos.getChildren().forEach(n -> HBox.setHgrow(n, Priority.ALWAYS));
 
-            cardCasa.getChildren().addAll(cHdr, g, montos);
-            contenido.getChildren().add(cardCasa);
+            cardCasa.getChildren().addAll(cHdr, datos, montos);
+            vboxInformeFinanciero.getChildren().add(cardCasa);
         }
-
-        ScrollPane scroll = new ScrollPane(contenido);
-        scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background:transparent; -fx-background-color:transparent;");
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scroll.setPrefHeight(260);
-        VBox.setVgrow(scroll, Priority.ALWAYS);
 
         // Totales
         HBox totales = new HBox(10);
-        totales.setPadding(new Insets(12, 14, 14, 14));
-        totales.setStyle("-fx-background-color:"+C_BG+"; -fx-background-radius:0 0 10 10;");
+        totales.setPadding(new Insets(4, 0, 0, 0));
         totales.getChildren().addAll(
-            montoCard("Total Inversión",   "$"+String.format("%,.0f",totalInv),     C_PRIMARY, C_PRIMARY_L),
-            montoCard("Ahorro Total/Mes",  "$"+String.format("%,.0f",totalAhorro),  C_SUCCESS, C_SUCCESS_L),
-            montoCard("Ahorro Total/Año",  "$"+String.format("%,.0f",totalAhorro*12),C_SUCCESS,C_SUCCESS_L)
+            montoCard("💰 Total Inversión",   "$"+String.format("%,.0f", totalInv),       C_PRIMARY, C_PRIMARY_L),
+            montoCard("📈 Ahorro Total/Mes",  "$"+String.format("%,.0f", totalAhorro),    C_SUCCESS, C_SUCCESS_L),
+            montoCard("🎯 Ahorro Total/Año",  "$"+String.format("%,.0f", totalAhorro*12), C_SUCCESS, C_SUCCESS_L)
         );
         totales.getChildren().forEach(n -> HBox.setHgrow(n, Priority.ALWAYS));
 
-        vboxInformeFinanciero.getChildren().addAll(scroll, new Separator(), totales);
+        Label totalTit = new Label("Resumen Global");
+        totalTit.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
+        Separator sepT = new Separator(); sepT.setStyle("-fx-background-color:" + C_BORDER + ";");
+        vboxInformeFinanciero.getChildren().addAll(sepT, totalTit, totales);
     }
 
     // ── Actualizar métricas ───────────────────────────────────────────
@@ -538,54 +601,64 @@ public class DashboardusuarioFx {
     }
 
     // ── Helpers UI ────────────────────────────────────────────────────
-    private VBox metricaCard(String icon, String titulo, Label valor, String sub, String color, String bgColor) {
+    private VBox metricaCard(String icon, String titulo, Label valor, String sub, String color, String bg) {
         VBox box = new VBox(6);
-        box.setStyle("-fx-background-color:"+C_SURFACE+"; -fx-background-radius:14;"
-                + "-fx-border-color:"+C_BORDER+"; -fx-border-left-color:"+color+";"
-                + "-fx-border-radius:14; -fx-padding:16; -fx-border-width:1 1 1 4;");
-        box.setEffect(new DropShadow(4,0,1,Color.color(0,0,0,0.04)));
-        HBox hdr = new HBox(6); hdr.setAlignment(Pos.CENTER_LEFT);
-        Label ico = new Label(icon); ico.setStyle("-fx-font-size:14px;");
-        Label tit = new Label(titulo); tit.setStyle("-fx-font-size:11px; -fx-text-fill:"+C_TEXT_S+"; -fx-font-weight:bold;");
+        box.setStyle("-fx-background-color:" + C_SURFACE + "; -fx-background-radius:14;"
+                + "-fx-border-color:" + C_BORDER + "; -fx-border-left-color:" + color + ";"
+                + "-fx-border-radius:14; -fx-padding:16 18; -fx-border-width:1 1 1 5;");
+        box.setEffect(new DropShadow(6, 0, 2, Color.color(0,0,0,0.05)));
+        HBox hdr = new HBox(7); hdr.setAlignment(Pos.CENTER_LEFT);
+        Label ico = new Label(icon); ico.setStyle("-fx-font-size:15px;");
+        Label tit = new Label(titulo); tit.setStyle("-fx-font-size:12px; -fx-text-fill:" + C_TEXT_S + "; -fx-font-weight:bold;");
         hdr.getChildren().addAll(ico, tit);
-        valor.setStyle("-fx-font-size:28px; -fx-font-weight:900; -fx-text-fill:"+color+";");
-        Label subL = new Label(sub); subL.setStyle("-fx-font-size:11px; -fx-text-fill:"+C_TEXT_S+";");
+        valor.setStyle("-fx-font-size:30px; -fx-font-weight:900; -fx-text-fill:" + color + ";");
+        Label subL = new Label(sub); subL.setStyle("-fx-font-size:11px; -fx-text-fill:" + C_TEXT_S + ";");
         box.getChildren().addAll(hdr, valor, subL);
         return box;
     }
 
-    private HBox infoRow(String icon, String label, String value) {
-        HBox row = new HBox(10); row.setAlignment(Pos.CENTER_LEFT);
-        row.setPadding(new Insets(6, 10, 6, 10));
-        row.setStyle("-fx-background-color:"+C_BG+"; -fx-background-radius:8;");
-        Label ico = new Label(icon); ico.setStyle("-fx-font-size:14px;");
-        Label lbl = new Label(label+":"); lbl.setStyle("-fx-font-size:12px; -fx-text-fill:"+C_TEXT_S+"; -fx-min-width:70;");
-        Label val = new Label(value); val.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:"+C_TEXT+";");
+    private Label chip(String texto, String color, String bg) {
+        Label l = new Label(texto);
+        l.setStyle("-fx-background-color:" + bg + "; -fx-text-fill:" + color + ";"
+                + "-fx-font-size:12px; -fx-font-weight:bold; -fx-padding:5 12; -fx-background-radius:20;");
+        return l;
+    }
+
+    private Label chipResultado(String texto, String color, String bg) {
+        Label l = new Label(texto);
+        l.setStyle("-fx-background-color:" + bg + "; -fx-text-fill:" + color + ";"
+                + "-fx-font-size:12px; -fx-font-weight:bold; -fx-padding:6 14; -fx-background-radius:20;"
+                + "-fx-border-color:" + color + "55; -fx-border-radius:20;");
+        return l;
+    }
+
+    private HBox infoFila(String icon, String label, String value) {
+        HBox row = new HBox(12); row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(12, 16, 12, 16));
+        Label ico = new Label(icon); ico.setStyle("-fx-font-size:15px; -fx-min-width:24;");
+        Label lbl = new Label(label + ":"); lbl.setStyle("-fx-font-size:12px; -fx-text-fill:" + C_TEXT_S + "; -fx-min-width:80;");
+        Label val = new Label(value); val.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:" + C_TEXT + ";");
         row.getChildren().addAll(ico, lbl, val);
         return row;
     }
 
-    private Label resChip(String texto, String color, String bg) {
-        Label l = new Label(texto);
-        l.setStyle("-fx-background-color:"+bg+"; -fx-text-fill:"+color+";"
-                + "-fx-font-size:11px; -fx-font-weight:bold; -fx-padding:4 10; -fx-background-radius:20;"
-                + "-fx-border-color:"+color+"; -fx-border-radius:20; -fx-border-width:0.5;");
-        return l;
-    }
-
-    private VBox gridItem(String titulo, String valor, String color) {
-        VBox v = new VBox(2);
-        Label t = new Label(titulo); t.setStyle("-fx-font-size:10px; -fx-text-fill:"+C_TEXT_S+"; -fx-font-weight:bold;");
-        Label va = new Label(valor); va.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:"+color+";");
+    private VBox datoCell(String titulo, String valor, String color) {
+        VBox v = new VBox(4); v.setAlignment(Pos.CENTER); v.setPadding(new Insets(10, 14, 10, 14));
+        Label t = new Label(titulo); t.setStyle("-fx-font-size:10px; -fx-text-fill:" + C_TEXT_S + "; -fx-font-weight:bold;");
+        Label va = new Label(valor); va.setStyle("-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:" + color + ";");
         v.getChildren().addAll(t, va); return v;
     }
 
+    private Region sep() {
+        Region r = new Region(); r.setPrefWidth(1); r.setStyle("-fx-background-color:" + C_BORDER + ";"); return r;
+    }
+
     private VBox montoCard(String titulo, String monto, String color, String bg) {
-        VBox box = new VBox(4); box.setAlignment(Pos.CENTER_LEFT);
-        box.setStyle("-fx-background-color:"+bg+"; -fx-background-radius:10;"
-                + "-fx-border-color:"+color+"33; -fx-border-radius:10; -fx-padding:10 14;");
-        Label t = new Label(titulo); t.setStyle("-fx-font-size:10px; -fx-text-fill:"+C_TEXT_S+"; -fx-font-weight:bold;");
-        Label m = new Label(monto);  m.setStyle("-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:"+color+";");
+        VBox box = new VBox(5); box.setAlignment(Pos.CENTER_LEFT);
+        box.setStyle("-fx-background-color:" + bg + "; -fx-background-radius:12;"
+                + "-fx-border-color:" + color + "33; -fx-border-radius:12; -fx-padding:14 16;");
+        Label t = new Label(titulo); t.setStyle("-fx-font-size:11px; -fx-text-fill:" + C_TEXT_S + "; -fx-font-weight:bold;");
+        Label m = new Label(monto);  m.setStyle("-fx-font-size:20px; -fx-font-weight:900; -fx-text-fill:" + color + ";");
         box.getChildren().addAll(t, m); return box;
     }
 
