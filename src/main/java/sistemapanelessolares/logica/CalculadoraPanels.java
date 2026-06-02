@@ -21,16 +21,18 @@ public class CalculadoraPanels {
                 casa.getLatitud(), casa.getLongitud(), casa.getCiudad());
     }
 
-    public int calcularNumeroPaneles() {
-        if (panel == null) return 0;
-        double consumoDiarioKWh = casa.getConsumoDiarioKWh();
-        double horasSol = getHorasSolEstimadas();
-        double eficienciaDecimal = panel.getEficiencia() / 100.0;
-        double produccionPorPanel = (panel.getPotenciaWatts() / 1000.0) * horasSol * eficienciaDecimal;
-        if (produccionPorPanel <= 0) return 0;
-        return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
-    }
-
+ public int calcularNumeroPaneles() {
+    if (panel == null) return 0;
+    double consumoDiarioKWh = casa.getConsumoDiarioKWh();
+    double horasSol = getHorasSolEstimadas();
+    // PR = 0.80: Factor de rendimiento real (pérdidas por temperatura,
+    // cableado, inversor, suciedad). El Wp ya incluye la eficiencia celular.
+    double PR = 0.80;
+    double produccionPorPanel = (panel.getPotenciaWatts() / 1000.0) * horasSol * PR;
+    if (produccionPorPanel <= 0) return 0;
+    return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
+}
+ 
     public static int calcularPanelesParaConsumoMensual(PanelSolar panel,
             double consumoMensualKWh, double horasSolEfectivas) {
         if (panel == null) return 0;
@@ -41,35 +43,34 @@ public class CalculadoraPanels {
         return (int) Math.ceil(consumoDiarioKWh / produccionPorPanel);
     }
 
-    public double calcularCostoTotal() {
-        if (panel == null) return costoAdicionalSistema;
-        int numPaneles = calcularNumeroPaneles();
-        return (numPaneles * panel.getCostoUnidad()) + costoAdicionalSistema;
-    }
-
-    // ✅ NUEVO: requerido por DashboardusuarioFx
+  public double calcularCostoTotal() {
+    if (panel == null) return costoAdicionalSistema;
+    int numPaneles = calcularNumeroPaneles();
+    // Costo panel + instalación por cada unidad
+    return numPaneles * (panel.getCostoUnidad() + costoAdicionalSistema);
+}
+  
     public double calcularGeneracionMensualKWh() {
-        if (panel == null) return 0;
-        int numPaneles = calcularNumeroPaneles();
-        double horasSol = getHorasSolEstimadas();
-        double eficienciaDecimal = panel.getEficiencia() / 100.0;
-        double produccionDiaria = numPaneles * (panel.getPotenciaWatts() / 1000.0) * horasSol * eficienciaDecimal;
-        return produccionDiaria * 30;
-    }
+    if (panel == null) return 0;
+    int numPaneles = calcularNumeroPaneles();
+    double horasSol = getHorasSolEstimadas();
+    double PR = 0.80;
+    double produccionDiaria = numPaneles * (panel.getPotenciaWatts() / 1000.0) * horasSol * PR;
+    return produccionDiaria * 30;
+}
+    
 
     public String generarResumen() {
-        if (panel == null) {
-            return "Resumen del sistema solar:\n- Casa: " + casa.toString()
-                    + "\n No se ha seleccionado ningún panel solar.";
-        }
-        int numPaneles = calcularNumeroPaneles();
-        double costoTotal = calcularCostoTotal();
-        double horasSolUsadas = getHorasSolEstimadas();
-        return "Resumen del sistema solar:\n"
-                + "- Casa: " + casa.toString() + "\n"
-                + "- Horas de sol estimadas: " + String.format("%.1f h", horasSolUsadas) + "\n"
-                + "- Panel usado: " + panel.getNombre() + " (" + panel.getTipo() + ")\n"
-                + "- Paneles necesarios: " + numPaneles + "\n"
-                + "- Costo total estimado: $" + String.format("%.2f", costoTotal);
-    }
+    if (panel == null) return "No se ha seleccionado ningún panel solar.";
+    int numPaneles = calcularNumeroPaneles();
+    double costoTotal = calcularCostoTotal();
+    return "Resumen del sistema solar:\n"
+            + "- Casa: " + casa.toString() + "\n"
+            + "- Horas de sol estimadas: " + String.format("%.1f h", getHorasSolEstimadas()) + "\n"
+            + "- Panel: " + panel.getNombre() + " (" + panel.getTipo() + ")\n"
+            + "- Paneles necesarios: " + numPaneles + "\n"
+            + "- Costo paneles: $" + String.format("%,.0f", numPaneles * panel.getCostoUnidad()) + "\n"
+            + "- Costo instalación: $" + String.format("%,.0f", numPaneles * costoAdicionalSistema) + "\n"
+            + "- Costo total: $" + String.format("%,.0f", costoTotal);
+}
 }
