@@ -131,13 +131,32 @@ public class GraficasService {
     }
 
     private double obtenerGeneracionMensual(Usuario usuario) {
-        if (usuario.getPanelSeleccionado() == null
-                || usuario.getCasas() == null
-                || usuario.getCasas().isEmpty()) return 250;
-        Casa casa = usuario.getCasas().get(0);
-        PanelSolar panel = usuario.getPanelSeleccionado();
-        CalculadoraPanels calc = new CalculadoraPanels(
-                casa, panel, panel.getCostoInstalacion());
-        return calc.calcularGeneracionMensualKWh();
+    // Intenta con panelSeleccionado (compatibilidad)
+    if (usuario.getPanelSeleccionado() != null
+            && usuario.getCasas() != null
+            && !usuario.getCasas().isEmpty()) {
+        double total = 0;
+        for (Casa casa : usuario.getCasas()) {
+            PanelSolar panel = usuario.getPanelSeleccionado();
+            total += new CalculadoraPanels(casa, panel, panel.getCostoInstalacion())
+                     .calcularGeneracionMensualKWh();
+        }
+        return total;
     }
+    // Fallback: usa el primer panel disponible del catálogo
+    if (usuario.getCasas() != null && !usuario.getCasas().isEmpty()
+            && solarService != null) {
+        java.util.List<PanelSolar> paneles = solarService.getGestorPaneles().listarPorPrecioAscendente();
+        if (!paneles.isEmpty()) {
+            double total = 0;
+            PanelSolar panel = paneles.get(0);
+            for (Casa casa : usuario.getCasas()) {
+                total += new CalculadoraPanels(casa, panel, panel.getCostoInstalacion())
+                         .calcularGeneracionMensualKWh();
+            }
+            return total;
+        }
+    }
+    return 250;
+}
 }
